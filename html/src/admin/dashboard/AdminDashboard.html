@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Dashboard - Kedai Sinau</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#E0D9CE",
+                        "on-surface": "#1A1A1A",
+                        "primary": "#C0392B",
+                        "on-background": "#1A1A1A",
+                        "surface-bright": "#FAF3E0",
+                        "surface": "#ffffff",
+                        "background": "#FAF3E0",
+                        "outline-variant": "#E0D9CE",
+                        "outline": "#1E3A5F",
+                        "on-surface-variant": "#1E3A5F",
+                        "secondary": "#1E3A5F"
+                    },
+                    "fontFamily": {
+                        "headline-h1": ["Newsreader", "serif"],
+                        "display-lg": ["Newsreader", "serif"],
+                        "headline-h2": ["Newsreader", "serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "headline-h3": ["Newsreader", "serif"],
+                        "caption": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF3E0;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+
+        .editorial-inner {
+            border: 1px solid #E0D9CE;
+        }
+    </style>
+</head>
+
+<body class="text-on-surface antialiased min-h-screen flex">
+    <div class="noise-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-outline-variant/60 bg-[#FAF3E0] flex flex-col h-screen sticky top-0 z-10 shrink-0">
+        <!-- Logo -->
+        <div class="p-8 border-b border-outline-variant/60">
+            <h1 class="text-3xl font-bold text-on-surface font-newsreader tracking-tight">Kedai Sinau.</h1>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-8 flex flex-col gap-2 overflow-y-auto">
+            <!-- Active Menu Indicator: border-l-2 border-primary, bg change, text-primary -->
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-primary border-l-2 border-primary bg-white shadow-sm flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Dashboard
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">book</span>
+                Manage Books
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">article</span>
+                Manage Articles
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">group</span>
+                Manage Admins
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">settings</span>
+                Store Settings
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-6 border-t border-outline-variant/60">
+            <a href="#" class="flex items-center gap-4 font-label-sm uppercase tracking-widest text-primary hover:opacity-70 transition-opacity px-3">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 px-8 lg:px-16 py-12 lg:py-16 overflow-y-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:justify-between md:items-end border-b border-outline-variant/80 pb-6 mb-12 gap-4">
+            <div class="flex flex-col gap-2">
+                <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Overview</span>
+                <h2 class="font-headline-h2 text-4xl lg:text-5xl text-on-surface italic tracking-tight">Dashboard Overview</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Logged in as:</span>
+                <span class="font-newsreader italic text-xl border-b border-outline-variant pb-0.5">Widhyanto Muttaqien Ahmad</span>
+            </div>
+        </header>
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <!-- Stat: Total Books -->
+            <div class="p-6 bg-white border border-outline-variant/40 shadow-sm relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+                    <span class="material-symbols-outlined text-9xl">book</span>
+                </div>
+                <div class="flex flex-col gap-2 relative z-10">
+                    <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Total Books</span>
+                    <span class="font-headline-h1 text-5xl">1,248</span>
+                </div>
+            </div>
+
+            <!-- Stat: Total Articles -->
+            <div class="p-6 bg-white border border-outline-variant/40 shadow-sm relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+                    <span class="material-symbols-outlined text-9xl">article</span>
+                </div>
+                <div class="flex flex-col gap-2 relative z-10">
+                    <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Total Articles</span>
+                    <span class="font-headline-h1 text-5xl">86</span>
+                </div>
+            </div>
+
+            <!-- Stat: Unavailable Books -->
+            <div class="p-6 bg-white border border-outline-variant/40 shadow-sm relative overflow-hidden group border-t-2 border-t-primary">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700 text-primary">
+                    <span class="material-symbols-outlined text-9xl">block</span>
+                </div>
+                <div class="flex flex-col gap-2 relative z-10">
+                    <span class="font-label-sm text-[10px] uppercase tracking-widest text-primary">Unavailable Books</span>
+                    <span class="font-headline-h1 text-5xl text-primary">12</span>
+                </div>
+            </div>
+
+            <!-- Stat: Total Categories -->
+            <div class="p-6 bg-white border border-outline-variant/40 shadow-sm relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
+                    <span class="material-symbols-outlined text-9xl">category</span>
+                </div>
+                <div class="flex flex-col gap-2 relative z-10">
+                    <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Categories</span>
+                    <span class="font-headline-h1 text-5xl">24</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables / Lists -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-12 lg:gap-16">
+            
+            <!-- Left: Unavailable Books (Editorial Ledger Style) -->
+            <div class="xl:col-span-2 flex flex-col">
+                <div class="flex justify-between items-baseline border-b border-outline-variant/80 pb-4 mb-2">
+                    <h3 class="font-headline-h3 text-2xl italic">Unavailable Books</h3>
+                    <a href="#" class="font-label-sm text-[10px] uppercase tracking-widest text-primary hover:opacity-70 border-b border-primary/30 pb-1">View All</a>
+                </div>
+
+                <div class="flex flex-col">
+                    <!-- Table Header (Minimal) -->
+                    <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-4 border-b border-outline-variant/40 text-on-surface-variant opacity-70">
+                        <span class="font-label-sm text-[9px] uppercase tracking-widest w-16 text-center">Cover</span>
+                        <span class="font-label-sm text-[9px] uppercase tracking-widest">Title & Author</span>
+                        <span class="font-label-sm text-[9px] uppercase tracking-widest text-right">Status</span>
+                    </div>
+
+                    <!-- Row 1 -->
+                    <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-5 border-b border-outline-variant/40 hover:bg-white transition-colors group">
+                        <img alt="The Art of Stillness" class="w-12 md:w-16 aspect-[2/3] object-cover editorial-inner shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ" />
+                        <div class="flex flex-col gap-1">
+                            <h4 class="font-headline-h3 text-xl group-hover:text-primary transition-colors">The Art of Stillness</h4>
+                            <span class="font-newsreader italic text-on-surface-variant text-sm">Marcus Thorne</span>
+                        </div>
+                        <div class="flex items-center justify-end">
+                            <span class="px-3 py-1 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase">Unavailable</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-5 border-b border-outline-variant/40 hover:bg-white transition-colors group">
+                        <img alt="Echoes of the Past" class="w-12 md:w-16 aspect-[2/3] object-cover editorial-inner shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO" />
+                        <div class="flex flex-col gap-1">
+                            <h4 class="font-headline-h3 text-xl group-hover:text-primary transition-colors">Echoes of the Past</h4>
+                            <span class="font-newsreader italic text-on-surface-variant text-sm">Sarah Jenkins</span>
+                        </div>
+                        <div class="flex items-center justify-end">
+                            <span class="px-3 py-1 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase">Unavailable</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-5 border-b border-outline-variant/40 hover:bg-white transition-colors group">
+                        <div class="w-12 md:w-16 aspect-[2/3] bg-surface-variant/30 editorial-inner flex items-center justify-center text-on-surface-variant/40">
+                            <span class="material-symbols-outlined">image</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h4 class="font-headline-h3 text-xl group-hover:text-primary transition-colors">Urban Landscapes</h4>
+                            <span class="font-newsreader italic text-on-surface-variant text-sm">David Chen</span>
+                        </div>
+                        <div class="flex items-center justify-end">
+                            <span class="px-3 py-1 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase">Unavailable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Recent Articles -->
+            <div class="flex flex-col">
+                <div class="flex justify-between items-baseline border-b border-outline-variant/80 pb-4 mb-2">
+                    <h3 class="font-headline-h3 text-2xl italic">Recent Articles</h3>
+                    <a href="#" class="font-label-sm text-[10px] uppercase tracking-widest text-primary hover:opacity-70 border-b border-primary/30 pb-1">Manage</a>
+                </div>
+                
+                <div class="flex flex-col">
+                    <!-- List Item 1 -->
+                    <div class="flex flex-col gap-2 py-5 border-b border-outline-variant/40 hover:pl-2 transition-all duration-300 group cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-primary">Published</span>
+                            <span class="font-newsreader italic text-sm text-on-surface-variant opacity-70">12 May 2024</span>
+                        </div>
+                        <h4 class="font-headline-h3 text-lg leading-snug group-hover:text-primary transition-colors">The Resurgence of Print: Why Physical Books Endure</h4>
+                    </div>
+
+                    <!-- List Item 2 -->
+                    <div class="flex flex-col gap-2 py-5 border-b border-outline-variant/40 hover:pl-2 transition-all duration-300 group cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-outline">Draft</span>
+                            <span class="font-newsreader italic text-sm text-on-surface-variant opacity-70">10 May 2024</span>
+                        </div>
+                        <h4 class="font-headline-h3 text-lg leading-snug group-hover:text-primary transition-colors">Review: Echoes of the Past by Sarah Jenkins</h4>
+                    </div>
+
+                    <!-- List Item 3 -->
+                    <div class="flex flex-col gap-2 py-5 border-b border-outline-variant/40 hover:pl-2 transition-all duration-300 group cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-primary">Published</span>
+                            <span class="font-newsreader italic text-sm text-on-surface-variant opacity-70">05 May 2024</span>
+                        </div>
+                        <h4 class="font-headline-h3 text-lg leading-snug group-hover:text-primary transition-colors">Curator's Choice: Essential Reading for the Modern Stoic</h4>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

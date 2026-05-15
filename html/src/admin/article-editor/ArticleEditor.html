@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Article Editor - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#E0D9CE",
+                        "on-surface": "#1A1A1A",
+                        "primary": "#C0392B",
+                        "on-background": "#1A1A1A",
+                        "surface-bright": "#FAF3E0",
+                        "surface": "#ffffff",
+                        "background": "#FAF3E0",
+                        "outline-variant": "#E0D9CE",
+                        "outline": "#1E3A5F",
+                        "on-surface-variant": "#1E3A5F",
+                        "secondary": "#1E3A5F"
+                    },
+                    "fontFamily": {
+                        "headline-h1": ["Newsreader", "serif"],
+                        "display-lg": ["Newsreader", "serif"],
+                        "headline-h2": ["Newsreader", "serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "headline-h3": ["Newsreader", "serif"],
+                        "caption": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF3E0;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #1E3A5F;
+            padding: 12px 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            color: #1A1A1A;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: #C0392B;
+            box-shadow: 0 1px 0 0 #C0392B;
+        }
+
+        .form-input::placeholder {
+            color: rgba(30, 58, 95, 0.4);
+            font-style: italic;
+            font-family: 'Newsreader', serif;
+        }
+        
+        select.form-input {
+            border-radius: 0;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231E3A5F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1em;
+        }
+
+        /* Mock Rich Text Editor */
+        .rte-container {
+            border: 1px solid #1E3A5F;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+        .rte-toolbar {
+            border-bottom: 1px solid #E0D9CE;
+            padding: 12px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: #FAF3E0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .rte-toolbar button {
+            padding: 6px 10px;
+            color: #1E3A5F;
+            border-radius: 2px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .rte-toolbar button:hover {
+            background: rgba(30, 58, 95, 0.1);
+        }
+        .rte-content {
+            padding: 32px 48px;
+            min-height: 500px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="text-on-surface antialiased h-screen flex overflow-hidden">
+    <div class="noise-overlay"></div>
+
+    <!-- Sidebar (Collapsible on mobile) -->
+    <aside class="hidden md:flex w-64 border-r border-outline-variant/60 bg-[#FAF3E0] flex-col h-screen shrink-0 relative z-10">
+        <!-- Logo -->
+        <div class="p-8 border-b border-outline-variant/60">
+            <h1 class="text-3xl font-bold text-on-surface font-newsreader tracking-tight">Kedai Sinau.</h1>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-8 flex flex-col gap-2 overflow-y-auto">
+            <a href="admin-dashboard.html" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Dashboard
+            </a>
+            <a href="admin-manage-books.html" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">book</span>
+                Manage Books
+            </a>
+            <a href="admin-manage-articles.html" class="px-5 py-4 font-label-sm uppercase tracking-widest text-primary border-l-2 border-primary bg-white shadow-sm flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">article</span>
+                Manage Articles
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">group</span>
+                Manage Admins
+            </a>
+            <a href="#" class="px-5 py-4 font-label-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-white/50 border-l-2 border-transparent hover:border-outline-variant/50 flex items-center gap-4 transition-all">
+                <span class="material-symbols-outlined text-[18px]">settings</span>
+                Store Settings
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Editor Area -->
+    <main class="flex-1 flex flex-col h-screen relative z-20 bg-[#FAF3E0]">
+        
+        <!-- Top Toolbar -->
+        <header class="flex justify-between items-center px-6 lg:px-10 py-6 border-b border-outline-variant/80 shrink-0 bg-[#FAF3E0]">
+            <div class="flex items-center gap-6">
+                <a href="admin-manage-articles.html" class="text-on-surface-variant hover:text-primary transition-colors group flex items-center gap-2">
+                    <span class="material-symbols-outlined transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                    <span class="font-label-sm text-[11px] uppercase tracking-widest hidden md:inline">Back to Articles</span>
+                </a>
+                <div class="h-6 w-[1px] bg-outline-variant/60 hidden md:block"></div>
+                <h2 class="font-headline-h3 text-2xl italic">Article Editor</h2>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors underline-offset-4 hover:underline hidden md:block">Preview</button>
+                <button class="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 hover:bg-white transition-colors">
+                    Save Draft
+                </button>
+                <button class="bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-8 py-2.5 hover:bg-on-surface transition-colors shadow-lg shadow-primary/20">
+                    Publish
+                </button>
+            </div>
+        </header>
+
+        <!-- Editor Workspace -->
+        <div class="flex-1 overflow-y-auto w-full">
+            <div class="max-w-[1000px] mx-auto px-6 py-12 flex flex-col gap-12">
+                
+                <!-- Metadata Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <!-- Thumbnail -->
+                    <div class="col-span-1 flex flex-col gap-3">
+                        <span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Featured Image</span>
+                        <div class="w-full aspect-[16/9] border-2 border-dashed border-outline-variant bg-white flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors group shadow-sm">
+                            <span class="material-symbols-outlined text-outline-variant group-hover:text-primary mb-2 text-3xl">add_photo_alternate</span>
+                            <span class="font-newsreader italic text-xs text-on-surface-variant group-hover:text-primary text-center px-4">Upload cinematic thumbnail (16:9)</span>
+                        </div>
+                    </div>
+
+                    <!-- Title & Category -->
+                    <div class="col-span-1 md:col-span-2 flex flex-col gap-8 justify-end">
+                        <div class="flex flex-col">
+                            <label class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Article Title</label>
+                            <input type="text" class="form-input text-2xl font-newsreader font-medium" placeholder="Enter an engaging headline..." />
+                        </div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="flex flex-col">
+                                <label class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Category</label>
+                                <select class="form-input">
+                                    <option>Featured</option>
+                                    <option>Interview</option>
+                                    <option>Book Review</option>
+                                    <option>Editorial Essay</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col justify-end pb-3">
+                                <label class="flex items-center gap-3 cursor-pointer group w-fit">
+                                    <input type="checkbox" checked class="text-primary focus:ring-primary border-outline-variant rounded-sm" />
+                                    <span class="font-newsreader italic text-sm text-on-surface group-hover:text-primary transition-colors">Visible to Public</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Excerpt & Read Time -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div class="flex flex-col md:col-span-2">
+                        <label class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Excerpt / Summary</label>
+                        <textarea class="form-input h-20 resize-none" placeholder="A short summary shown on article cards in the Journal listing. Max ~160 characters recommended."></textarea>
+                        <span class="font-newsreader text-[11px] italic text-on-surface-variant mt-1 opacity-70">Displayed as preview text on the Journal page. If empty, first paragraph will be used.</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Read Time (min)</label>
+                        <input type="number" class="form-input" placeholder="e.g. 8" min="1" />
+                        <span class="font-newsreader text-[11px] italic text-on-surface-variant mt-1 opacity-70">Auto-estimated from word count if left empty.</span>
+                    </div>
+                </div>
+
+                <!-- Rich Text Editor Section -->
+                <div class="flex flex-col">
+                    <label class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Content</label>
+                    <div class="rte-container">
+                        <!-- Toolbar -->
+                        <div class="rte-toolbar">
+                            <div class="flex items-center mr-4 pr-4 border-r border-outline-variant/40 gap-1">
+                                <button type="button" title="Paragraph"><span class="font-label-sm text-[12px] uppercase">P</span></button>
+                                <button type="button" title="Heading 2"><span class="font-headline-h2 text-[16px]">H2</span></button>
+                                <button type="button" title="Heading 3"><span class="font-headline-h3 text-[14px]">H3</span></button>
+                            </div>
+                            
+                            <div class="flex items-center mr-4 pr-4 border-r border-outline-variant/40 gap-1">
+                                <button type="button" title="Bold"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+                                <button type="button" title="Italic"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+                                <button type="button" title="Underline"><span class="material-symbols-outlined text-[20px]">format_underlined</span></button>
+                            </div>
+
+                            <div class="flex items-center mr-4 pr-4 border-r border-outline-variant/40 gap-1">
+                                <button type="button" title="Blockquote"><span class="material-symbols-outlined text-[20px]">format_quote</span></button>
+                                <button type="button" title="Bullet List"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+                                <button type="button" title="Numbered List"><span class="material-symbols-outlined text-[20px]">format_list_numbered</span></button>
+                            </div>
+
+                            <div class="flex items-center gap-1">
+                                <button type="button" title="Insert Link"><span class="material-symbols-outlined text-[20px]">link</span></button>
+                                <button type="button" title="Insert Image"><span class="material-symbols-outlined text-[20px]">image</span></button>
+                                <button type="button" title="Horizontal Rule"><span class="material-symbols-outlined text-[20px]">horizontal_rule</span></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Canvas -->
+                        <div class="rte-content" contenteditable="true">
+                            <p><br></p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="font-newsreader italic text-sm text-on-surface-variant/60">Word count: 0</span>
+                        <span class="font-newsreader italic text-sm text-primary">Last saved: Just now</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple placeholder logic for contenteditable
+        const rteContent = document.querySelector('.rte-content');
+        rteContent.addEventListener('focus', function() {
+            if (this.textContent.trim() === '') {
+                this.innerHTML = '<p><br></p>';
+            }
+        });
+        rteContent.addEventListener('blur', function() {
+            if (this.textContent.trim() === '') {
+                this.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

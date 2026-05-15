@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Kedai Sinau</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#adc8f5",
+                        "inverse-surface": "#3c2d2a",
+                        "primary-fixed-dim": "#ffb4a9",
+                        "tertiary-fixed-dim": "#80d0f8",
+                        "tertiary-container": "#007296",
+                        "surface-variant": "#E0D9CE",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#1E3A5F",
+                        "on-primary-fixed-variant": "#8e130c",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#ffe9e6",
+                        "primary": "#C0392B",
+                        "on-primary-container": "#ffe5e1",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#E0D9CE",
+                        "on-tertiary-container": "#d3eeff",
+                        "on-primary-fixed": "#410000",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#001e2b",
+                        "surface-dim": "#eed4d1",
+                        "on-surface": "#1A1A1A",
+                        "surface-container-high": "#fce2de",
+                        "secondary-container": "#b5d0fd",
+                        "primary-fixed": "#ffdad5",
+                        "on-background": "#1A1A1A",
+                        "on-secondary-fixed": "#001c3b",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#FAF3E0",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#fff0ee",
+                        "on-secondary-fixed-variant": "#1E3A5F",
+                        "tertiary": "#005875",
+                        "secondary-fixed": "#d5e3ff",
+                        "primary-container": "#C0392B",
+                        "background": "#FAF3E0",
+                        "outline-variant": "#E0D9CE",
+                        "outline": "#1E3A5F",
+                        "inverse-primary": "#ffb4a9",
+                        "on-tertiary-fixed-variant": "#004d66",
+                        "tertiary-fixed": "#c0e8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#1E3A5F",
+                        "surface-tint": "#C0392B",
+                        "inverse-on-surface": "#ffedea",
+                        "secondary": "#1E3A5F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "sm": "0.125rem",
+                        "md": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "24px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "margin": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-h1": ["Newsreader", "serif"],
+                        "display-lg": ["Newsreader", "serif"],
+                        "headline-h2": ["Newsreader", "serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "headline-h3": ["Newsreader", "serif"],
+                        "caption": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-h1": ["36px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-h2": ["28px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-h3": ["22px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF3E0;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+
+        .book-cover {
+            aspect-ratio: 2/3;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+
+        .editorial-border {
+            border: 1px solid #1E3A5F;
+            padding: 4px;
+        }
+
+        .editorial-inner {
+            border: 1px solid #E0D9CE;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1E3A5F, transparent);
+        }
+
+        /* === Hero Carousel === */
+        .hero-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #3c2219;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            aspect-ratio: 1920 / 600;
+            display: block;
+            object-fit: cover;
+            object-position: center center;
+        }
+
+        /* Nav Arrows */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            color: #3c2219;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.25s ease;
+            opacity: 0;
+        }
+
+        .hero-carousel:hover .carousel-btn {
+            opacity: 1;
+        }
+
+        .carousel-btn:hover {
+            background: #fff;
+            transform: translateY(-50%) scale(1.08);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-btn.prev {
+            left: 20px;
+        }
+
+        .carousel-btn.next {
+            right: 20px;
+        }
+
+        /* Dots */
+        .carousel-dots {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .carousel-dot.active {
+            background: #fff;
+            border-color: #fff;
+            transform: scale(1.2);
+        }
+
+        .carousel-dot:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* === Mobile Menu === */
+        .mobile-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .mobile-overlay.open { opacity: 1; pointer-events: auto; }
+        .mobile-menu {
+            position: fixed; top: 0; right: 0; width: 280px; height: 100%;
+            background: #fff; z-index: 100; transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -8px 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+        .mobile-menu.open { transform: translateX(0); }
+
+        /* === Theme Dark === */
+        .theme-dark { background-color: #261816; color: #FAF3E0; }
+        .theme-dark .text-on-surface { color: #FAF3E0; }
+        .theme-dark .text-on-surface-variant { color: #Dfd7d5; }
+        .theme-dark .text-primary { color: #e1bfb9; }
+        .theme-dark .border-outline-variant { border-color: #59413d; }
+        .theme-dark .border-outline-variant\/30 { border-color: rgba(89, 65, 61, 0.5); }
+        .theme-dark .bg-white { background-color: #3c2d2a; }
+        .theme-dark .border-primary\/30 { border-color: #59413d; }
+        .theme-dark .group-hover\:text-primary:hover { color: #fff; }
+
+        /* === Genre Browser === */
+        .genre-chip {
+            padding: 8px 16px; background: transparent; border: none;
+            font-family: 'Newsreader', serif; font-size: 18px; font-style: italic;
+            cursor: pointer; transition: all 0.3s ease; color: #59413d;
+            border-bottom: 1px solid transparent;
+        }
+        .genre-chip:hover { color: #9e2016; border-bottom-color: #9e2016; }
+
+        /* === New Arrivals Scroll === */
+        .arrivals-scroll {
+            display: flex; gap: 24px; overflow-x: auto; padding-bottom: 16px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        }
+        .arrivals-scroll::-webkit-scrollbar { height: 4px; }
+        .arrivals-scroll::-webkit-scrollbar-track { background: #e1bfb9; border-radius: 999px; }
+        .arrivals-scroll::-webkit-scrollbar-thumb { background: #8d706c; border-radius: 999px; }
+        .arrivals-card { min-width: 180px; max-width: 180px; scroll-snap-align: start; flex-shrink: 0; }
+
+        /* === Badge === */
+        .book-badge {
+            position: absolute; top: 12px; left: 12px; z-index: 10;
+            font-family: 'Newsreader', serif; font-size: 11px; font-style: italic;
+            letter-spacing: 0.05em; padding: 2px 10px; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px); border: 1px solid #e1bfb9;
+            color: #3c2d2a; border-radius: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .book-badge--bestseller { color: #9e2016; border-color: #9e2016; font-weight: 500; }
+        .book-badge--new { color: #005875; border-color: #005875; font-weight: 500; }
+        .book-badge--diskon { color: #8d706c; border-color: #8d706c; font-weight: 500; }
+
+        /* === Testimonial === */
+        .testimonial-card {
+            border: 1px solid #e1bfb9; padding: 32px; background: #fff; position: relative;
+        }
+        .testimonial-card::before {
+            content: '\201C'; position: absolute; top: 16px; left: 20px;
+            font-family: 'Newsreader', serif; font-size: 64px; color: #e1bfb9; line-height: 1;
+        }
+
+        /* === WhatsApp Float === */
+        .wa-float {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            background: #25D366; color: #fff; border: none; border-radius: 999px;
+            padding: 14px 24px; font-family: 'Inter', sans-serif; font-size: 14px;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 16px rgba(37,211,102,0.35); transition: all 0.25s ease;
+        }
+        .wa-float:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(37,211,102,0.45); }
+        .wa-float svg { width: 22px; height: 22px; fill: #fff; }
+    </style>
+</head>
+
+<body class="text-on-surface antialiased min-h-screen flex flex-col">
+    <div class="noise-overlay"></div>
+    <!-- TopNavBar -->
+    <nav
+        class="bg-[#FAF3E0]/90 backdrop-blur-sm sticky top-0 z-50 border-b border-outline-variant/50 shadow-sm transition-all duration-300">
+        <div class="flex justify-between items-center max-w-[1200px] mx-auto px-6 h-14">
+            <div class="text-3xl font-bold text-on-surface font-newsreader tracking-tight">Kedai Sinau.</div>
+            <div class="hidden lg:flex gap-6 items-center">
+                <a class="text-on-surface font-newsreader text-sm uppercase tracking-widest border-b border-primary pb-1"
+                    href="#">Home</a>
+                <a class="text-on-surface-variant hover:text-on-surface font-newsreader text-sm uppercase tracking-widest transition-colors duration-200"
+                    href="#">About Us</a>
+                <a class="text-on-surface-variant hover:text-on-surface font-newsreader text-sm uppercase tracking-widest transition-colors duration-200"
+                    href="#">Genres</a>
+                <a class="text-on-surface-variant hover:text-on-surface font-newsreader text-sm uppercase tracking-widest transition-colors duration-200"
+                    href="#">New Releases</a>
+                <a class="text-on-surface-variant hover:text-on-surface font-newsreader text-sm uppercase tracking-widest transition-colors duration-200"
+                    href="#">The Journal</a>
+                <a class="text-on-surface-variant hover:text-on-surface font-newsreader text-sm uppercase tracking-widest transition-colors duration-200"
+                    href="#">Contact</a>
+            </div>
+            <div class="flex items-center gap-6 text-on-surface h-full">
+                <!-- Search (Static Design State) -->
+                <div class="relative z-[100] h-full flex items-center">
+                    <div class="flex items-end gap-2 border-b-2 border-primary pb-1 w-48 lg:w-[320px]">
+                        <span class="material-symbols-outlined font-light text-primary text-[22px] mb-0.5">search</span>
+                        <span class="font-newsreader italic text-on-surface text-xl">Normal</span>
+                    </div>
+
+                    <!-- Search Results Dropdown -->
+                    <div class="absolute top-full right-0 w-[100vw] lg:w-[320px] bg-[#FAF3E0]/95 backdrop-blur-md border-x border-b border-outline-variant/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden">
+                        <div class="px-6 py-4 border-b border-outline-variant/30 flex justify-between items-center">
+                            <span class="font-label-sm text-[11px] tracking-widest text-on-surface-variant uppercase">Search Results (2)</span>
+                        </div>
+                        <a href="#" class="group/result flex flex-col px-6 py-6 bg-white hover:bg-[#FAF3E0] transition-colors duration-500 border-b border-outline-variant/30">
+                            <div class="flex justify-between items-center w-full mb-5">
+                                <div class="flex flex-col">
+                                    <h3 class="font-headline-h3 text-xl group-hover/result:text-primary transition-colors"><span class="bg-surface-variant text-primary px-1 rounded-sm">Normal</span> People</h3>
+                                    <span class="font-newsreader italic text-on-surface-variant opacity-80 text-sm">Sally Rooney</span>
+                                </div>
+                                <span class="material-symbols-outlined text-primary transform -rotate-90">expand_more</span>
+                            </div>
+                            <div class="flex gap-5">
+                                <img alt="Normal People" class="w-16 md:w-20 aspect-[2/3] object-cover shadow-lg editorial-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ" />
+                                <div class="flex flex-col justify-end pb-1">
+                                    <p class="font-body-md text-on-surface-variant text-xs leading-relaxed mb-4 line-clamp-3">A captivating exploration of modern relationships and coming of age in the 21st century.</p>
+                                    <span class="font-newsreader uppercase text-[10px] tracking-widest text-primary border-b border-primary w-fit pb-1">View Details &rarr;</span>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="group/hit flex items-center justify-between px-6 py-4 bg-white hover:bg-[#FAF3E0] transition-colors duration-300">
+                            <div class="flex flex-col">
+                                <h3 class="font-headline-h3 text-lg group-hover/hit:text-primary transition-colors">The <span class="bg-surface-variant text-primary px-1 rounded-sm">Normal</span> Heart</h3>
+                                <span class="font-newsreader italic text-on-surface-variant text-sm mt-1">Larry Kramer</span>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface-variant group-hover/hit:text-primary transform group-hover/hit:translate-x-1 transition-all">east</span>
+                        </a>
+                    </div>
+                </div>
+
+                <button class="hover:text-primary transition-colors duration-200 hidden md:block">
+                    <span class="material-symbols-outlined font-light" data-icon="person">person</span>
+                </button>
+                <button id="hamburgerBtn" class="md:hidden hover:text-primary transition-colors duration-200">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="flex justify-between items-center px-6 h-14 border-b border-outline-variant/50">
+            <span class="text-lg font-bold font-headline-h1 text-on-surface">Menu</span>
+            <button id="closeMenuBtn" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex flex-col py-4">
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-primary border-l-2 border-primary" href="#">Home</a>
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors" href="#">About Us</a>
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors" href="#">Genres</a>
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors" href="#">New Releases</a>
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors" href="#">The Journal</a>
+            <a class="px-6 py-3 font-headline-h1 text-sm uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-colors" href="#">Contact</a>
+        </div>
+    </div>
+
+    <!-- Hero Banner Carousel (full-width, outside main container) -->
+    <section class="hero-carousel" id="heroCarousel">
+        <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide">
+                <img src="baner1.png" alt="Special Pre-Order & Limited Offers - 15% Off" />
+            </div>
+            <div class="carousel-slide">
+                <img src="baner2.png" alt="New Arrivals - Order Now" />
+            </div>
+            <div class="carousel-slide">
+                <img src="baner3.png" alt="Special Offers of the Month" />
+            </div>
+        </div>
+        <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button class="carousel-btn next" id="carouselNext" aria-label="Next slide">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <div class="carousel-dots" id="carouselDots">
+            <button class="carousel-dot active" data-index="0" aria-label="Slide 1"></button>
+            <button class="carousel-dot" data-index="1" aria-label="Slide 2"></button>
+            <button class="carousel-dot" data-index="2" aria-label="Slide 3"></button>
+        </div>
+    </section>
+
+    <section class="max-w-[1200px] mx-auto w-full px-6 pt-16 pb-20">
+        <!-- Koleksi Pilihan -->
+        <div class="flex flex-col gap-12">
+            <div class="flex justify-between items-baseline border-b border-outline-variant pb-4">
+                <h2 class="font-headline-h2 text-headline-h2 text-on-surface italic">Curated Collection</h2>
+                <a class="font-newsreader uppercase tracking-widest text-xs text-primary hover:opacity-80 transition-opacity border-b border-primary/30 pb-1" href="#">View Catalog</a>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                <div class="flex flex-col gap-6 group cursor-pointer">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <span class="book-badge book-badge--bestseller">Best Seller</span>
+                        <img alt="Whispers in the Wind" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXdtxVvjzntwnPWBLeaFKKgQq6m_ZFSqU3PM-W-mqlXoDshh1kan0FRZoXJMCIOZiK5NEXQLNwKAqiEpaFVvmbSJzmo-0RQpivV5pu9vQTdWU27XIYZa3MDkYKklXPQHpIk5iqmCvsF95h9dCLIJ-iR4HCVQDOUgMNmhTQHtKeqWNZKUuwszivfU6O9_v1rEzhNJgYK9K-mw42NeiayxeGSyAS1XfURwCIFg8DzLLCCTl5E7hYUbFLLO_iUeKqEZ1PxFmwiHtutZ2N" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Whispers in the Wind</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Elena Rossi</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 125.000</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6 group cursor-pointer lg:mt-8">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <span class="book-badge book-badge--new">New</span>
+                        <img alt="The Art of Stillness" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">The Art of Stillness</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Marcus Thorne</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 140.000</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6 group cursor-pointer">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <img alt="Echoes of the Past" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Echoes of the Past</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Sarah Jenkins</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 110.000</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6 group cursor-pointer lg:mt-8">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <span class="book-badge book-badge--diskon">Sale</span>
+                        <img alt="Urban Landscapes" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpQv7ds9jqq7B8Fmp6MqcSC7VbSpsfIGtfyw2zbjfQhH_6YTYR_VS3Y6CL_avks9skK_IrFNswjVS0jcbXG1BXob66UW1DZhnD78gr-G4VTsbPxkAkewSvdeXfYzH9y1qZNMQF0cDxdgT9FrGzt6YdTKxxAJc0OT5AMEGgoP1qiFw4F11o0nAkgLH433jx977XZfRqwrnx0Ao-yRfHimvmgl-RrdkZ1dn6vej5fA5p8Cstyp2TriA8u7Mw3h8zIqJNlzfHJ79S0T91" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Urban Landscapes</span>
+                        <span class="font-newsreader italic text-on-surface-variant">David Chen</span>
+                        <div class="flex items-center justify-center gap-3 mt-2">
+                            <span class="font-label-sm text-sm text-on-surface-variant line-through opacity-60">Rp 195.000</span>
+                            <span class="font-label-sm text-sm text-primary">Rp 155.000</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Item 5 -->
+                <div class="flex flex-col gap-6 group cursor-pointer">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <img alt="The Silent Observer" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN135f6k9HHk3K_SbJF2SEkOFq7Ln2lCUYPjOOotE1HHra5JXQA2plhokI0adL-M4EaXRkvLAbnCj9st8MX0hS7CTxLA9KbmaankbcrlcrTe3PoWyM6rMDjlaYgKsiXC3dlI7yp34rj7basd497qwnLjk4a1Xrfa7koaGkvGUVyE1ujQy54_35AHhwpLyfV1hDaNffp1YAjYN9PDEmrAXUxDJEsMcTetVqMec9Vt1tm0KtXZP2in1Yq9cBd1pRXx7DZUtOLEsEweCq" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">The Silent Observer</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Clara Woods</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 130.000</span>
+                    </div>
+                </div>
+                <!-- Item 6 (Staggered) -->
+                <div class="flex flex-col gap-6 group cursor-pointer lg:mt-8">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <span class="book-badge book-badge--bestseller">Best Seller</span>
+                        <img alt="Design Philosophy" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUSnJQXi3d6_3bNq-LBgUSrEGktWiDneEG50B-geqUigNw1MBagVxjCKJITMmlKO_ANnfno6Qw3jBSu5XASU2PQGKqewyD1rLHVZdE-uqho8sMhq1ZEUgof7u5jBPl_LX3mcp77dl-RiRZGQMA8OnmtyDR8CkPfzb1Fg0-XnU8GS-Tv66aSvcbTOEdRKV7MJPYRIYiYbFZKKzpOi2U9FlorkJafoiEds3O0NYlLuibzSrUqouwPqrBdJ9EJTJBFCW3c5prL2qs5IZP" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Design Philosophy</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Antoine Miller</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 195.000</span>
+                    </div>
+                </div>
+                <!-- Item 7 -->
+                <div class="flex flex-col gap-6 group cursor-pointer">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <span class="book-badge book-badge--new">New</span>
+                        <img alt="Beyond The Horizon" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Beyond The Horizon</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Jonathan Pierce</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 145.000</span>
+                    </div>
+                </div>
+                <!-- Item 8 (Staggered) -->
+                <div class="flex flex-col gap-6 group cursor-pointer lg:mt-8">
+                    <div class="relative p-4 bg-white border border-outline-variant/30 shadow-sm transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-md">
+                        <img alt="Modern Architecture" class="book-cover w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ" />
+                    </div>
+                    <div class="flex flex-col gap-2 text-center">
+                        <span class="font-headline-h3 text-headline-h3 text-on-surface">Modern Architecture</span>
+                        <span class="font-newsreader italic text-on-surface-variant">Sarah Jenkins</span>
+                        <span class="font-label-sm text-sm text-primary mt-2">Rp 175.000</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="flex justify-center pt-4">
+                <a href="#" class="inline-flex items-center gap-4 border border-outline text-on-surface font-newsreader uppercase tracking-widest text-sm px-12 py-5 hover:bg-on-surface hover:text-white hover:border-on-surface transition-all duration-500 group">
+                    Explore Full Collection
+                    <span class="material-symbols-outlined font-light text-base transform group-hover:translate-x-2 transition-transform duration-500">east</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avant-Garde Bestseller - Masterpiece Selection -->
+    <section class="w-full bg-[#1E3A5F] text-[#FAF3E0] py-32 md:py-40 relative overflow-hidden">
+        <!-- Giant Background Typography -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none opacity-[0.03] z-0">
+            <h2 class="font-headline-h1 text-[15rem] md:text-[25rem] whitespace-nowrap leading-none tracking-tighter">BESTSELLER</h2>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8 items-center">
+                
+                <!-- Left: Floating Book Cover -->
+                <div class="md:col-span-5 flex justify-center mt-8 md:mt-0">
+                    <div class="relative group cursor-pointer w-[85%] md:w-[80%]">
+                        <!-- Deco lines -->
+                        <div class="absolute -top-10 -left-10 w-20 h-20 border-t-[4px] border-l-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-top-14 group-hover:-left-14 z-0"></div>
+                        <div class="absolute -bottom-10 -right-10 w-20 h-20 border-b-[4px] border-r-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-bottom-14 group-hover:-right-14 z-0"></div>
+                        
+                        <div class="relative z-10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] transform transition-transform duration-700 group-hover:scale-[1.03]">
+                            <img alt="The Midnight Library" class="w-full aspect-[2/3] object-cover editorial-inner filter contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUSnJQXi3d6_3bNq-LBgUSrEGktWiDneEG50B-geqUigNw1MBagVxjCKJITMmlKO_ANnfno6Qw3jBSu5XASU2PQGKqewyD1rLHVZdE-uqho8sMhq1ZEUgof7u5jBPl_LX3mcp77dl-RiRZGQMA8OnmtyDR8CkPfzb1Fg0-XnU8GS-Tv66aSvcbTOEdRKV7MJPYRIYiYbFZKKzpOi2U9FlorkJafoiEds3O0NYlLuibzSrUqouwPqrBdJ9EJTJBFCW3c5prL2qs5IZP" />
+                            
+                            <!-- Floating Badge -->
+                            <div class="absolute top-12 -right-8 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase px-6 py-2 rotate-90 origin-bottom-right shadow-xl">
+                                No. 1 Bestseller
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Editorial Museum Plaque -->
+                <div class="md:col-span-6 md:col-start-7 flex flex-col pt-8 md:pt-0">
+                    <!-- Top Labels -->
+                    <div class="flex items-center gap-6 mb-8">
+                        <span class="w-12 h-[1px] bg-[#FAF3E0]/30"></span>
+                        <span class="font-newsreader uppercase tracking-[0.3em] text-[10px] text-[#FAF3E0]/60">Bestseller of the Month</span>
+                        <span class="font-newsreader uppercase tracking-[0.3em] text-[10px] text-primary">05 . 24</span>
+                    </div>
+
+                    <!-- Title Block -->
+                    <div class="flex flex-col gap-2 mb-10">
+                        <h3 class="font-headline-h1 text-5xl md:text-7xl tracking-tight leading-[1.1] mb-2">
+                            The Midnight<br/>
+                            <i class="text-[#FAF3E0]/70 font-light">Library</i>
+                        </h3>
+                        <span class="font-newsreader italic text-2xl text-[#FAF3E0]/50">Matt Haig</span>
+                    </div>
+
+                    <!-- Museum Plaque Details Grid -->
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-6 border-y border-[#FAF3E0]/20 py-8 mb-10">
+                        <div class="flex flex-col gap-2">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40">Genre</span>
+                            <span class="font-newsreader text-sm tracking-wide">Contemporary Fiction</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40">Pages</span>
+                            <span class="font-newsreader text-sm tracking-wide">304 p.</span>
+                        </div>
+                        <div class="col-span-2 flex flex-col gap-3 pt-4 border-t border-[#FAF3E0]/10">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40">Synopsis</span>
+                            <p class="font-body-md text-sm leading-loose text-[#FAF3E0]/70 text-justify">
+                                Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived. To see how things would be if you had made other choices.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Price & CTA -->
+                    <div class="flex flex-col md:flex-row items-baseline justify-between gap-8">
+                        <div class="flex flex-col">
+                            <span class="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40 mb-2">Edition Price</span>
+                            <div class="flex items-center gap-4">
+                                <span class="font-headline-h3 text-lg text-[#FAF3E0]/40 line-through">Rp 210.000</span>
+                                <span class="font-label-sm text-[10px] tracking-widest uppercase bg-primary/90 text-white px-3 py-1">-21%</span>
+                            </div>
+                            <div class="font-headline-h3 text-3xl mt-1">Rp 165.000</div>
+                        </div>
+                        <button class="w-full md:w-auto bg-[#FAF3E0] text-[#1E3A5F] font-newsreader uppercase tracking-widest text-xs px-10 py-5 hover:bg-primary hover:text-white transition-all duration-500">
+                            Acquire Book
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+
+        <!-- Editorial Ledger: New Arrivals -->
+        <section class="w-full py-24 md:py-32">
+            <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-24">
+                
+                <!-- Left Title -->
+                <div class="md:col-span-5 flex flex-col gap-6 border-t border-outline-variant pt-6">
+                    <span class="font-newsreader uppercase tracking-[0.2em] text-xs text-on-surface-variant">Fresh off the press</span>
+                    <h2 class="font-display-lg text-6xl md:text-7xl text-on-surface leading-none tracking-tight">New<br/><i class="text-on-surface-variant font-light">Arrivals</i></h2>
+                    <p class="font-body-md text-on-surface-variant mt-4 md:pr-12 leading-relaxed">
+                        Discover our latest acquisitions. A curated index of titles that challenge the mind and soothe the soul, presented without visual noise.
+                    </p>
+                </div>
+
+                <!-- Right Ledger List -->
+                <div class="md:col-span-7 flex flex-col border-t border-outline-variant pt-6">
+                    <div class="-mx-4 md:-mx-8 flex flex-col">
+                        <!-- Ledger Item 01 (Expanded Default) -->
+                        <div class="border-b border-outline-variant/30 bg-white px-4 md:px-8 transition-colors duration-500 shadow-sm">
+                            <div class="flex items-center justify-between py-6 text-primary">
+                                <div class="flex items-center gap-6 md:gap-12 w-full">
+                                    <span class="font-newsreader text-sm opacity-100">01</span>
+                                    <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+                                        <h3 class="font-headline-h3 text-2xl">Klara and the Sun</h3>
+                                        <span class="font-newsreader italic opacity-80">Kazuo Ishiguro</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 flex-shrink-0">
+                                    <span class="font-label-sm text-sm hidden md:block text-primary">Rp 185.000</span>
+                                    <span class="material-symbols-outlined transform rotate-180">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-rows-[1fr] opacity-100 transition-all duration-700">
+                                <div class="overflow-hidden">
+                                    <div class="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
+                                        <img alt="Klara and the Sun" class="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXdtxVvjzntwnPWBLeaFKKgQq6m_ZFSqU3PM-W-mqlXoDshh1kan0FRZoXJMCIOZiK5NEXQLNwKAqiEpaFVvmbSJzmo-0RQpivV5pu9vQTdWU27XIYZa3MDkYKklXPQHpIk5iqmCvsF95h9dCLIJ-iR4HCVQDOUgMNmhTQHtKeqWNZKUuwszivfU6O9_v1rEzhNJgYK9K-mw42NeiayxeGSyAS1XfURwCIFg8DzLLCCTl5E7hYUbFLLO_iUeKqEZ1PxFmwiHtutZ2N" />
+                                        <div class="flex flex-col justify-end">
+                                            <p class="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">A thrilling and profound novel from the Nobel Prize winner, asking what it means to love in a changing world.</p>
+                                            <a href="#" class="border border-on-surface text-on-surface px-6 py-3 font-newsreader uppercase text-xs tracking-widest hover:bg-on-surface hover:text-white transition-colors w-fit">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ledger Item 02 (Expand on Hover) -->
+                        <div class="group border-b border-outline-variant/30 cursor-pointer px-4 md:px-8 hover:bg-white hover:shadow-sm transition-all duration-500">
+                            <div class="flex items-center justify-between py-6 group-hover:text-primary transition-colors duration-500">
+                                <div class="flex items-center gap-6 md:gap-12 w-full">
+                                    <span class="font-newsreader text-sm text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500">02</span>
+                                    <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+                                        <h3 class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors duration-500">Normal People</h3>
+                                        <span class="font-newsreader italic text-on-surface-variant transition-colors duration-500">Sally Rooney</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 flex-shrink-0">
+                                    <span class="font-label-sm text-sm hidden md:block text-on-surface-variant group-hover:text-primary transition-colors">Rp 150.000</span>
+                                    <span class="material-symbols-outlined transform group-hover:rotate-180 transition-transform duration-500 text-on-surface-variant group-hover:text-primary">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                                <div class="overflow-hidden">
+                                    <div class="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
+                                        <img alt="Normal People" class="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ" />
+                                        <div class="flex flex-col justify-end">
+                                            <p class="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">A captivating exploration of modern relationships and coming of age in the 21st century.</p>
+                                            <a href="#" class="border border-on-surface text-on-surface px-6 py-3 font-newsreader uppercase text-xs tracking-widest hover:bg-on-surface hover:text-white transition-colors w-fit">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ledger Item 03 (Expand on Hover) -->
+                        <div class="group border-b border-outline-variant/30 cursor-pointer px-4 md:px-8 hover:bg-white hover:shadow-sm transition-all duration-500">
+                            <div class="flex items-center justify-between py-6 group-hover:text-primary transition-colors duration-500">
+                                <div class="flex items-center gap-6 md:gap-12 w-full">
+                                    <span class="font-newsreader text-sm text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500">03</span>
+                                    <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+                                        <h3 class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors duration-500">The Secret History</h3>
+                                        <span class="font-newsreader italic text-on-surface-variant transition-colors duration-500">Donna Tartt</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 flex-shrink-0">
+                                    <span class="font-label-sm text-sm hidden md:block text-on-surface-variant group-hover:text-primary transition-colors">Rp 210.000</span>
+                                    <span class="material-symbols-outlined transform group-hover:rotate-180 transition-transform duration-500 text-on-surface-variant group-hover:text-primary">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                                <div class="overflow-hidden">
+                                    <div class="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
+                                        <img alt="The Secret History" class="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO" />
+                                        <div class="flex flex-col justify-end">
+                                            <p class="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">A modern classic combining brilliant character studies with a gripping murder mystery.</p>
+                                            <a href="#" class="border border-on-surface text-on-surface px-6 py-3 font-newsreader uppercase text-xs tracking-widest hover:bg-on-surface hover:text-white transition-colors w-fit">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ledger Item 04 (Expand on Hover) -->
+                        <div class="group border-b border-transparent cursor-pointer px-4 md:px-8 hover:bg-white hover:shadow-sm transition-all duration-500">
+                            <div class="flex items-center justify-between py-6 group-hover:text-primary transition-colors duration-500">
+                                <div class="flex items-center gap-6 md:gap-12 w-full">
+                                    <span class="font-newsreader text-sm text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500">04</span>
+                                    <div class="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+                                        <h3 class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors duration-500">A Little Life</h3>
+                                        <span class="font-newsreader italic text-on-surface-variant transition-colors duration-500">Hanya Yanagihara</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 flex-shrink-0">
+                                    <span class="font-label-sm text-sm hidden md:block text-on-surface-variant group-hover:text-primary transition-colors">Rp 250.000</span>
+                                    <span class="material-symbols-outlined transform group-hover:rotate-180 transition-transform duration-500 text-on-surface-variant group-hover:text-primary">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                                <div class="overflow-hidden">
+                                    <div class="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
+                                        <img alt="A Little Life" class="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpQv7ds9jqq7B8Fmp6MqcSC7VbSpsfIGtfyw2zbjfQhH_6YTYR_VS3Y6CL_avks9skK_IrFNswjVS0jcbXG1BXob66UW1DZhnD78gr-G4VTsbPxkAkewSvdeXfYzH9y1qZNMQF0cDxdgT9FrGzt6YdTKxxAJc0OT5AMEGgoP1qiFw4F11o0nAkgLH433jx977XZfRqwrnx0Ao-yRfHimvmgl-RrdkZ1dn6vej5fA5p8Cstyp2TriA8u7Mw3h8zIqJNlzfHJ79S0T91" />
+                                        <div class="flex flex-col justify-end">
+                                            <p class="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">A beautifully written, intensely moving narrative of four friends in New York City.</p>
+                                            <a href="#" class="border border-on-surface text-on-surface px-6 py-3 font-newsreader uppercase text-xs tracking-widest hover:bg-on-surface hover:text-white transition-colors w-fit">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- Genre Browser -->
+    <section class="w-full py-16 md:py-20">
+        <div class="max-w-[1200px] mx-auto px-6 flex flex-col gap-10">
+            <div class="text-center flex flex-col items-center gap-4">
+                <span class="font-headline-h1 uppercase tracking-[0.2em] text-xs text-on-surface-variant">Browse by</span>
+                <h2 class="font-headline-h2 text-headline-h2 text-on-surface italic">Explore Genres</h2>
+                <div class="w-12 h-[1px] bg-primary mt-2"></div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 max-w-[800px] mx-auto">
+                <button class="genre-chip">Fiction</button>
+                <button class="genre-chip">Non-Fiction</button>
+                <button class="genre-chip">Self-Help</button>
+                <button class="genre-chip">Romance</button>
+                <button class="genre-chip">Business</button>
+                <button class="genre-chip">Biography</button>
+                <button class="genre-chip">Science</button>
+                <button class="genre-chip">Children's</button>
+                <button class="genre-chip">History</button>
+                <button class="genre-chip">Psychology</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="w-full bg-white py-24 md:py-32">
+        <div class="max-w-[1200px] mx-auto px-6 flex flex-col gap-12">
+            <div class="text-center flex flex-col items-center gap-4">
+                <span class="font-headline-h1 uppercase tracking-[0.2em] text-xs text-on-surface-variant">Readers Say</span>
+                <h2 class="font-headline-h2 text-headline-h2 text-on-surface italic">Testimonials</h2>
+                <div class="w-12 h-[1px] bg-primary mt-2"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="testimonial-card">
+                    <p class="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
+                        Koleksi bukunya sangat berkualitas. Setiap rekomendasi selalu tepat sasaran dan pengiriman sangat cepat!
+                    </p>
+                    <div class="mt-6 pt-4 border-t border-outline-variant/30">
+                        <div class="flex items-center gap-1 text-amber-500 text-sm mb-2">★★★★★</div>
+                        <div class="font-label-sm text-label-sm text-on-surface">Aisyah Putri</div>
+                        <div class="font-caption text-caption text-on-surface-variant">Jakarta</div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
+                        Toko buku favorit saya! Pelayanan ramah dan selalu ada buku-buku yang sulit ditemukan di tempat lain.
+                    </p>
+                    <div class="mt-6 pt-4 border-t border-outline-variant/30">
+                        <div class="flex items-center gap-1 text-amber-500 text-sm mb-2">★★★★★</div>
+                        <div class="font-label-sm text-label-sm text-on-surface">Rizky Pratama</div>
+                        <div class="font-caption text-caption text-on-surface-variant">Bandung</div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
+                        Senang bisa menemukan toko buku dengan kurasi yang bagus. Buku selalu dalam kondisi perfect.
+                    </p>
+                    <div class="mt-6 pt-4 border-t border-outline-variant/30">
+                        <div class="flex items-center gap-1 text-amber-500 text-sm mb-2">★★★★★</div>
+                        <div class="font-label-sm text-label-sm text-on-surface">Dewi Lestari</div>
+                        <div class="font-caption text-caption text-on-surface-variant">Surabaya</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Articles - Literary Journal -->
+    <section class="w-full theme-dark py-24 md:py-32">
+        <div class="max-w-[1200px] mx-auto px-6 flex flex-col gap-12">
+            <div class="flex justify-between items-baseline border-b border-outline-variant pb-4">
+                <h2 class="font-headline-h2 text-headline-h2 text-on-surface italic">Literary Journal</h2>
+                <a class="font-newsreader uppercase tracking-widest text-xs text-primary hover:opacity-80 transition-opacity border-b border-primary/30 pb-1"
+                    href="#">Read All Entries</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Article 1 -->
+                <article class="flex flex-col group cursor-pointer">
+                    <div class="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
+                        <img alt="Article Image"
+                            class="w-full h-64 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTAfoLSLK6gliayaPI1sAYPmgfuCo4Spdmymp5o1cIlxmzx_Cj65JR5PbIrQbKdsG4Xs_yq9TCWE6O6JsB-XgVqPI48e_6dDQ_whpQy0KXatfoFS_4drIMR9qtMuPAFA150wJaeFsorMtlID09Ta_vb3XDhpVKKpDI35EU6LctRQz_Ehj_ZIUIHoEslgJuVMbEW-cij3Rq_wK45nW8QgwPVgot1TKuFTWoTz7HCyb0L4UWxvX0b5PvjmP1ZnKOd0OFurffgo_LSwD7" />
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <span class="font-newsreader italic text-sm text-on-surface-variant">October 12, 2024</span>
+                        <h3
+                            class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors leading-snug">
+                            The Resurgence of Print: Why Physical Books Endure</h3>
+                        <div class="w-8 h-[1px] bg-outline-variant"></div>
+                        <p class="font-body-md text-on-surface-variant line-clamp-3">Exploring the tactile pleasure of
+                            paper and ink in an increasingly digital world, and why the physical object matters more
+                            than ever.</p>
+                    </div>
+                </article>
+                <!-- Article 2 -->
+                <article class="flex flex-col group cursor-pointer md:mt-12">
+                    <div class="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
+                        <img alt="Article Image"
+                            class="w-full h-64 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN135f6k9HHk3K_SbJF2SEkOFq7Ln2lCUYPjOOotE1HHra5JXQA2plhokI0adL-M4EaXRkvLAbnCj9st8MX0hS7CTxLA9KbmaankbcrlcrTe3PoWyM6rMDjlaYgKsiXC3dlI7yp34rj7basd497qwnLjk4a1Xrfa7koaGkvGUVyE1ujQy54_35AHhwpLyfV1hDaNffp1YAjYN9PDEmrAXUxDJEsMcTetVqMec9Vt1tm0KtXZP2in1Yq9cBd1pRXx7DZUtOLEsEweCq" />
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <span class="font-newsreader italic text-sm text-on-surface-variant">October 05, 2024</span>
+                        <h3
+                            class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors leading-snug">
+                            Curating Your Personal Library</h3>
+                        <div class="w-8 h-[1px] bg-outline-variant"></div>
+                        <p class="font-body-md text-on-surface-variant line-clamp-3">Tips and philosophies for building
+                            a collection that reflects your intellectual journey and aesthetic sensibilities.</p>
+                    </div>
+                </article>
+                <!-- Article 3 -->
+                <article class="flex flex-col group cursor-pointer">
+                    <div class="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
+                        <img alt="Article Image"
+                            class="w-full h-64 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKPD5ZlPPPGZq6ofsro3-LBqVErv52t7RhAW-xhb__m-_op0q2moVnyDEFt2MTGDqjTzJDj8hvavnNRK1P-gcZZUAzhG6D4BUhp441A0GRrSAsIluCsDmTi6PyhiadEg2fpY7m2jqHBQwHm6SII9Pwz2A9YYq4HlPiWOY22cToqesxpV2p-Qy2mRJKzr1fTLJEjTmiwb9B64EVdBeWtuAEoOQvLwL461RxOElWxlreg3RHiXLDzmRc1Fr4FA_e41FGX_-QU5uXBNY5" />
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <span class="font-newsreader italic text-sm text-on-surface-variant">September 28, 2024</span>
+                        <h3
+                            class="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors leading-snug">
+                            Hidden Gems of 20th Century Fiction</h3>
+                        <div class="w-8 h-[1px] bg-outline-variant"></div>
+                        <p class="font-body-md text-on-surface-variant line-clamp-3">A look back at underrated
+                            masterpieces that deserve a prominent place on your bedside table.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="wa-float" aria-label="Chat via WhatsApp">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Chat with Us
+    </a>
+
+    <!-- Footer -->
+    <footer class="bg-surface-variant/30 border-t border-outline-variant">
+        <div class="w-full py-20 px-6 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+            <div class="flex flex-col gap-6 md:col-span-1">
+                <div class="text-2xl font-bold text-on-surface font-newsreader tracking-tight">Kedai Sinau.</div>
+                <p class="font-newsreader italic text-base leading-relaxed text-on-surface-variant">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <div class="flex gap-5 mt-4">
+                    <a href="#" aria-label="Instagram" class="text-on-surface-variant hover:text-primary transition-transform hover:scale-110 duration-200" title="Instagram">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg>
+                    </a>
+                    <a href="#" aria-label="WhatsApp" class="text-on-surface-variant hover:text-primary transition-transform hover:scale-110 duration-200" title="WhatsApp">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </a>
+                    <a href="#" aria-label="Shopee" class="text-on-surface-variant hover:text-primary transition-transform hover:scale-110 duration-200" title="Shopee">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /><text x="12" y="16.5" font-family="Arial, sans-serif" font-size="8" font-weight="900" fill="currentColor" text-anchor="middle" stroke="none">S</text></svg>
+                    </a>
+                </div>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-newsreader text-sm text-on-surface uppercase tracking-[0.2em] mb-4">Explore</h4>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Home</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Collections</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">New Releases</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">The Journal</a>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-newsreader text-sm text-on-surface uppercase tracking-[0.2em] mb-4">Support</h4>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">How to Order</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Shipping Info</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Returns</a>
+                <a class="font-newsreader text-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Terms & Conditions</a>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="font-newsreader text-sm text-on-surface uppercase tracking-[0.2em] mb-4">Visit Us</h4>
+                <p class="font-newsreader italic text-sm text-on-surface-variant leading-relaxed">
+                    [Street Name / Full Address]<br />
+                    [District, City / Regency]<br />
+                    [Postal Code, Province]
+                </p>
+                <div class="w-8 h-[1px] bg-outline-variant my-2"></div>
+                <p class="font-newsreader italic text-sm text-on-surface-variant">
+                    [store_email@domain.com]<br />
+                    +62 xxx xxxx xxxx
+                </p>
+            </div>
+            <div class="md:col-span-4 pt-12 mt-4 border-t border-outline-variant/50 text-center">
+                <p class="font-newsreader uppercase tracking-widest text-xs text-on-surface-variant">
+                    © 2026 Kedai Sinau. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Carousel Script -->
+    <script>
+            (function () {
+                const track = document.getElementById('carouselTrack');
+                const dots = document.querySelectorAll('.carousel-dot');
+                const prevBtn = document.getElementById('carouselPrev');
+                const nextBtn = document.getElementById('carouselNext');
+                const carousel = document.getElementById('heroCarousel');
+                const slides = track.children;
+                const total = slides.length;
+                let current = 0;
+                let autoPlayTimer;
+
+                function goTo(index) {
+                    current = ((index % total) + total) % total;
+                    track.style.transform = `translateX(-${current * 100}%)`;
+                    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+                }
+
+                prevBtn.addEventListener('click', () => { goTo(current - 1); resetAutoPlay(); });
+                nextBtn.addEventListener('click', () => { goTo(current + 1); resetAutoPlay(); });
+                dots.forEach(dot => {
+                    dot.addEventListener('click', () => { goTo(+dot.dataset.index); resetAutoPlay(); });
+                });
+
+                function startAutoPlay() { autoPlayTimer = setInterval(() => goTo(current + 1), 5000); }
+                function resetAutoPlay() { clearInterval(autoPlayTimer); startAutoPlay(); }
+
+                carousel.addEventListener('mouseenter', () => clearInterval(autoPlayTimer));
+                carousel.addEventListener('mouseleave', startAutoPlay);
+
+                // Touch / swipe
+                let startX = 0;
+                carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+                carousel.addEventListener('touchend', e => {
+                    const diff = startX - e.changedTouches[0].clientX;
+                    if (Math.abs(diff) > 50) { goTo(diff > 0 ? current + 1 : current - 1); resetAutoPlay(); }
+                });
+
+                startAutoPlay();
+            })();
+    </script>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        (function () {
+            const hamburger = document.getElementById('hamburgerBtn');
+            const closeBtn = document.getElementById('closeMenuBtn');
+            const overlay = document.getElementById('mobileOverlay');
+            const menu = document.getElementById('mobileMenu');
+
+            function openMenu() { menu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+            function closeMenu() { menu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+            hamburger.addEventListener('click', openMenu);
+            closeBtn.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+        })();
+    </script>
+
+
+</body>
+
+</html>
