@@ -1,63 +1,37 @@
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function BookDetailPage({ params }: { params: { slug: string } }) {
-  // Mock data for the book detail
-  const book = {
-    title: "Normal People",
-    author: "Sally Rooney",
-    price: 125000,
-    category: "Contemporary Fiction",
-    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop",
-    status: "Available",
-    synopsis: [
-      "At school Connell and Marianne might not know each other. He's popular and well-adjusted, star of the school football team, while she is lonely, proud, and intensely private. But when Connell comes to pick his mother up from her job at Marianne's house, a strange and indelible connection grows between the two teenagers—one they are determined to conceal.",
-      "A captivating exploration of modern relationships and coming of age in the 21st century, Normal People is a story of mutual fascination, friendship and love. It takes us from that first conversation to the years beyond, in the company of two people who try to stay apart but find they can't."
-    ],
-    isbn: "978-0-571-33464-3",
-    publisher: "Faber & Faber",
-    year: "2018",
-    pages: "266 p."
-  };
+export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
-  const relatedBooks = [
-    {
-      id: "1",
-      slug: "beautiful-world-where-are-you",
-      title: "Beautiful World, Where Are You",
-      author: "Sally Rooney",
-      price: 140000,
-      imageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=600&auto=format&fit=crop",
+  const book = await prisma.book.findUnique({
+    where: { slug },
+    include: {
+      author: true,
+      publisher: true,
+      category: true,
+      genres: { include: { genre: true } },
     },
-    {
-      id: "2",
-      slug: "conversations-with-friends",
-      title: "Conversations with Friends",
-      author: "Sally Rooney",
-      price: 135000,
-      imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop",
-      staggered: true,
+  });
+
+  if (!book) return notFound();
+
+  // Related books: same category, excluding current
+  const relatedBooks = await prisma.book.findMany({
+    where: {
+      status: "Active",
+      categoryId: book.categoryId,
+      id: { not: book.id },
     },
-    {
-      id: "3",
-      slug: "the-secret-history",
-      title: "The Secret History",
-      author: "Donna Tartt",
-      price: 195000,
-      imageUrl: "https://images.unsplash.com/photo-1629196914225-83c70624cd8c?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: "4",
-      slug: "a-little-life",
-      title: "A Little Life",
-      author: "Hanya Yanagihara",
-      price: 250000,
-      imageUrl: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop",
-      staggered: true,
-    },
-  ];
+    include: { author: true },
+    take: 4,
+  });
+
+  const synopsisParagraphs = book.synopsis ? book.synopsis.split("\n").filter(Boolean) : [];
 
   return (
     <>
@@ -86,10 +60,21 @@ export default function BookDetailPage({ params }: { params: { slug: string } })
               <div className="absolute -bottom-6 -right-6 w-16 h-16 border-b-[2px] border-r-[2px] border-outline-variant transition-all duration-700 z-0"></div>
 
               <div className="relative z-10 shadow-2xl">
-                <span className={`book-badge font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-white/95 backdrop-blur-sm border absolute top-3 left-3 z-10 ${book.status === 'Tersedia' ? 'text-secondary border-secondary' : 'text-primary border-primary'}`}>
-                  {book.status}
+                {book.badge && (
+                  <span className={`book-badge font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-white/95 backdrop-blur-sm border absolute top-3 left-3 z-10 ${
+                    book.badge === "Best Seller" ? "book-badge--bestseller" :
+                    book.badge === "New" ? "book-badge--new" :
+                    "book-badge--diskon"
+                  }`}>
+                    {book.badge}
+                  </span>
+                )}
+                <span className={`book-badge font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-white/95 backdrop-blur-sm border absolute top-3 right-3 z-10 ${book.availability === 'Available' ? 'text-secondary border-secondary' : 'text-primary border-primary'}`}>
+                  {book.availability}
                 </span>
-                <img alt={book.title} className="w-full aspect-[2/3] object-cover editorial-inner" src={book.imageUrl} />
+                {book.imageUrl && (
+                  <img alt={book.title} className="w-full aspect-[2/3] object-cover editorial-inner" src={book.imageUrl} />
+                )}
               </div>
             </div>
           </div>
@@ -100,7 +85,7 @@ export default function BookDetailPage({ params }: { params: { slug: string } })
             {/* Category Labels */}
             <div className="flex items-center gap-6 mb-6">
               <span className="w-12 h-[1px] bg-primary/30"></span>
-              <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-primary">{book.category}</span>
+              <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-primary">{book.category?.name || "Uncategorized"}</span>
             </div>
 
             {/* Title & Action Block */}
@@ -109,11 +94,21 @@ export default function BookDetailPage({ params }: { params: { slug: string } })
                 <h1 className="font-display-lg text-5xl md:text-6xl tracking-tight leading-[1.1] mb-2 text-on-surface">
                   {book.title}
                 </h1>
-                <span className="font-newsreader italic text-2xl text-on-surface-variant">{book.author}</span>
+                <span className="font-newsreader italic text-2xl text-on-surface-variant">{book.author?.name || "Unknown"}</span>
               </div>
 
               {/* Price & CTAs */}
               <div className="flex flex-col gap-6 pt-2">
+                <div className="flex items-center gap-4">
+                  {book.originalPrice && (
+                    <>
+                      <span className="font-headline-h3 text-lg text-on-surface-variant/50 line-through">Rp {book.originalPrice.toLocaleString("id-ID")}</span>
+                      <span className="font-label-sm text-[10px] tracking-widest uppercase bg-primary/90 text-white px-3 py-1">
+                        -{Math.round((1 - book.price / book.originalPrice) * 100)}%
+                      </span>
+                    </>
+                  )}
+                </div>
                 <div className="font-headline-h3 text-4xl text-on-surface">Rp {book.price.toLocaleString("id-ID")}</div>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a href="#" className="flex-1 flex items-center justify-center gap-3 bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-8 py-4 hover:bg-primary/90 transition-all duration-300 shadow-sm">
@@ -129,61 +124,85 @@ export default function BookDetailPage({ params }: { params: { slug: string } })
             </div>
 
             {/* Synopsis */}
-            <div className="mb-10">
-              <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70 mb-4 block">Synopsis</span>
-              {book.synopsis.map((paragraph, idx) => (
-                <p key={idx} className={`font-body-md text-base leading-loose text-on-surface-variant text-justify ${idx > 0 ? "mt-4" : ""}`}>
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+            {synopsisParagraphs.length > 0 && (
+              <div className="mb-10">
+                <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70 mb-4 block">Synopsis</span>
+                {synopsisParagraphs.map((paragraph, idx) => (
+                  <p key={idx} className={`font-body-md text-base leading-loose text-on-surface-variant text-justify ${idx > 0 ? "mt-4" : ""}`}>
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            )}
 
             {/* Data Ledger */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-t border-outline-variant/50 pt-8 mb-10">
-              <div className="flex flex-col gap-2">
-                <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">ISBN</span>
-                <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.isbn}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Publisher</span>
-                <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.publisher}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Year</span>
-                <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.year}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Pages</span>
-                <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.pages}</span>
-              </div>
+              {book.isbn && (
+                <div className="flex flex-col gap-2">
+                  <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">ISBN</span>
+                  <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.isbn}</span>
+                </div>
+              )}
+              {book.publisher && (
+                <div className="flex flex-col gap-2">
+                  <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Publisher</span>
+                  <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.publisher.name}</span>
+                </div>
+              )}
+              {book.year && (
+                <div className="flex flex-col gap-2">
+                  <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Year</span>
+                  <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.year}</span>
+                </div>
+              )}
+              {book.pages && (
+                <div className="flex flex-col gap-2">
+                  <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Pages</span>
+                  <span className="font-newsreader text-sm tracking-wide text-on-surface">{book.pages} p.</span>
+                </div>
+              )}
+              {book.genres.length > 0 && (
+                <div className="flex flex-col gap-2 col-span-2">
+                  <span className="font-label-sm text-[9px] uppercase tracking-widest text-on-surface-variant opacity-70">Genres</span>
+                  <div className="flex flex-wrap gap-2">
+                    {book.genres.map((bg) => (
+                      <span key={bg.genre.id} className="font-newsreader text-sm tracking-wide text-on-surface border border-outline-variant/50 px-3 py-1">
+                        {bg.genre.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
           </div>
         </div>
 
         {/* Related Books Section */}
-        <div className="mt-32 pt-16 border-t border-outline-variant">
-          <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="font-headline-h1 uppercase tracking-[0.2em] text-xs text-on-surface-variant">Further Reading</span>
-            <h2 className="font-headline-h2 text-headline-h2 text-on-surface italic">Related Books</h2>
-            <div className="w-12 h-[1px] bg-primary mt-2"></div>
-          </div>
+        {relatedBooks.length > 0 && (
+          <div className="mt-32 pt-16 border-t border-outline-variant">
+            <div className="text-center flex flex-col items-center gap-4 mb-16">
+              <span className="font-headline-h1 uppercase tracking-[0.2em] text-xs text-on-surface-variant">Further Reading</span>
+              <h2 className="font-headline-h2 text-headline-h2 text-on-surface italic">Related Books</h2>
+              <div className="w-12 h-[1px] bg-primary mt-2"></div>
+            </div>
 
-          {/* The Grid (Gallery Layout) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-16 gap-x-8">
-            {relatedBooks.map((relatedBook) => (
-              <BookCard
-                key={relatedBook.id}
-                slug={relatedBook.slug}
-                title={relatedBook.title}
-                author={relatedBook.author}
-                price={relatedBook.price}
-                imageUrl={relatedBook.imageUrl}
-                staggered={relatedBook.staggered}
-              />
-            ))}
+            {/* The Grid (Gallery Layout) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-16 gap-x-8">
+              {relatedBooks.map((relatedBook, index) => (
+                <BookCard
+                  key={relatedBook.id}
+                  slug={relatedBook.slug}
+                  title={relatedBook.title}
+                  author={relatedBook.author?.name || "Unknown"}
+                  price={relatedBook.price}
+                  imageUrl={relatedBook.imageUrl || ""}
+                  staggered={index % 2 === 1}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </main>
 

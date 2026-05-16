@@ -1,18 +1,152 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  name  String?
+// ─── AUTH ────────────────────────────────────────────
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── NORMALIZED ENTITIES (autocomplete, anti-duplicate) ──
+model Author {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  books Book[]
+}
+
+model Publisher {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  books Book[]
+}
+
+model Genre {
+  id    Int       @id @default(autoincrement())
+  name  String    @unique
+  slug  String    @unique
+  books BookGenre[]
+}
+
+// ─── BOOKS ──────────────────────────────────────────
+model Book {
+  id                   Int       @id @default(autoincrement())
+  slug                 String    @unique
+  title                String
+  isbn                 String?
+  year                 Int?
+  pages                Int?
+  synopsis             String?   @db.Text
+  price                Int
+  originalPrice        Int?
+  imageUrl             String?
+  badge                String?
+  availability         String    @default("Available")
+  status               String    @default("Active")
+  isFeaturedBestseller Boolean   @default(false)
+
+  // Normalized relations
+  authorId    Int?
+  author      Author?    @relation(fields: [authorId], references: [id])
+  publisherId Int?
+  publisher   Publisher? @relation(fields: [publisherId], references: [id])
+  categoryId  Int?
+  category    Category?  @relation(fields: [categoryId], references: [id])
+  genres      BookGenre[]
+
+  // Search vector (managed by PostgreSQL trigger, NOT by Prisma)
+  searchVector Unsupported("tsvector")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // GIN index on searchVector for tsvector FTS
+  @@index([searchVector], type: Gin)
+}
+
+model BookGenre {
+  bookId  Int
+  genreId Int
+  book    Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, genreId])
+}
+
+// ─── ARTICLES ───────────────────────────────────────
+model ArticleCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  articles Article[]
+}
+
+model Article {
+  id          Int              @id @default(autoincrement())
+  slug        String           @unique
+  title       String
+  excerpt     String?          @db.Text
+  content     String           @db.Text
+  imageUrl    String?
+  readTime    Int?
+  status      String           @default("Draft")
+  isFeatured  Boolean          @default(false)
+  categoryId  Int?
+  category    ArticleCategory? @relation(fields: [categoryId], references: [id])
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+// ─── STORE CONTENT ──────────────────────────────────
+model Testimonial {
+  id     Int    @id @default(autoincrement())
+  name   String
+  city   String
+  rating Int    @default(5)
+  text   String @db.Text
+  order  Int    @default(0)
+}
+
+model Banner {
+  id       Int     @id @default(autoincrement())
+  imageUrl String
+  altText  String?
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+}
+
+model StoreSettings {
+  id              Int     @id @default(1)
+  storeName       String  @default("Kedai Sinau.")
+  description     String? @db.Text
+  logoUrl         String?
+  whatsapp        String?
+  email           String?
+  address         String? @db.Text
+  instagramUrl    String?
+  shopeeUrl       String?
+  tiktokUrl       String?
+  facebookUrl     String?
+  aboutHeroImage  String?
+  storeStory      String? @db.Text
+  visionStatement String? @db.Text
+  missionPoints   String? @db.Text
 }

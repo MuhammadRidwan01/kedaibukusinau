@@ -2,9 +2,18 @@ import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { BookCard } from "@/components/ui/BookCard";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const [curatedBooks, bestseller, newArrivals, genres, testimonials, articles] = await Promise.all([
+    prisma.book.findMany({ where: { status: "Active" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 8 }),
+    prisma.book.findFirst({ where: { status: "Active", isFeaturedBestseller: true }, include: { author: true, category: true } }),
+    prisma.book.findMany({ where: { status: "Active", badge: "New" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 4 }),
+    prisma.genre.findMany({ orderBy: { name: "asc" }, take: 10 }),
+    prisma.testimonial.findMany({ orderBy: { order: "asc" }, take: 3 }),
+    prisma.article.findMany({ where: { status: "Published" }, include: { category: true }, orderBy: { publishedAt: "desc" }, take: 3 }),
+  ]);
   return (
     <>
       <PublicNavbar />
@@ -24,72 +33,19 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            <BookCard
-              slug="whispers-in-the-wind"
-              title="Whispers in the Wind"
-              author="Elena Rossi"
-              price={125000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCXdtxVvjzntwnPWBLeaFKKgQq6m_ZFSqU3PM-W-mqlXoDshh1kan0FRZoXJMCIOZiK5NEXQLNwKAqiEpaFVvmbSJzmo-0RQpivV5pu9vQTdWU27XIYZa3MDkYKklXPQHpIk5iqmCvsF95h9dCLIJ-iR4HCVQDOUgMNmhTQHtKeqWNZKUuwszivfU6O9_v1rEzhNJgYK9K-mw42NeiayxeGSyAS1XfURwCIFg8DzLLCCTl5E7hYUbFLLO_iUeKqEZ1PxFmwiHtutZ2N"
-              badge="Best Seller"
-            />
-            <BookCard
-              slug="the-art-of-stillness"
-              title="The Art of Stillness"
-              author="Marcus Thorne"
-              price={140000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ"
-              badge="New"
-              staggered
-            />
-            <BookCard
-              slug="echoes-of-the-past"
-              title="Echoes of the Past"
-              author="Sarah Jenkins"
-              price={110000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO"
-            />
-            <BookCard
-              slug="urban-landscapes"
-              title="Urban Landscapes"
-              author="David Chen"
-              price={155000}
-              originalPrice={195000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBpQv7ds9jqq7B8Fmp6MqcSC7VbSpsfIGtfyw2zbjfQhH_6YTYR_VS3Y6CL_avks9skK_IrFNswjVS0jcbXG1BXob66UW1DZhnD78gr-G4VTsbPxkAkewSvdeXfYzH9y1qZNMQF0cDxdgT9FrGzt6YdTKxxAJc0OT5AMEGgoP1qiFw4F11o0nAkgLH433jx977XZfRqwrnx0Ao-yRfHimvmgl-RrdkZ1dn6vej5fA5p8Cstyp2TriA8u7Mw3h8zIqJNlzfHJ79S0T91"
-              badge="Sale"
-              staggered
-            />
-            <BookCard
-              slug="the-silent-observer"
-              title="The Silent Observer"
-              author="Clara Woods"
-              price={130000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCN135f6k9HHk3K_SbJF2SEkOFq7Ln2lCUYPjOOotE1HHra5JXQA2plhokI0adL-M4EaXRkvLAbnCj9st8MX0hS7CTxLA9KbmaankbcrlcrTe3PoWyM6rMDjlaYgKsiXC3dlI7yp34rj7basd497qwnLjk4a1Xrfa7koaGkvGUVyE1ujQy54_35AHhwpLyfV1hDaNffp1YAjYN9PDEmrAXUxDJEsMcTetVqMec9Vt1tm0KtXZP2in1Yq9cBd1pRXx7DZUtOLEsEweCq"
-            />
-            <BookCard
-              slug="design-philosophy"
-              title="Design Philosophy"
-              author="Antoine Miller"
-              price={195000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuDUSnJQXi3d6_3bNq-LBgUSrEGktWiDneEG50B-geqUigNw1MBagVxjCKJITMmlKO_ANnfno6Qw3jBSu5XASU2PQGKqewyD1rLHVZdE-uqho8sMhq1ZEUgof7u5jBPl_LX3mcp77dl-RiRZGQMA8OnmtyDR8CkPfzb1Fg0-XnU8GS-Tv66aSvcbTOEdRKV7MJPYRIYiYbFZKKzpOi2U9FlorkJafoiEds3O0NYlLuibzSrUqouwPqrBdJ9EJTJBFCW3c5prL2qs5IZP"
-              badge="Best Seller"
-              staggered
-            />
-            <BookCard
-              slug="beyond-the-horizon"
-              title="Beyond The Horizon"
-              author="Jonathan Pierce"
-              price={145000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO"
-              badge="New"
-            />
-            <BookCard
-              slug="modern-architecture"
-              title="Modern Architecture"
-              author="Sarah Jenkins"
-              price={175000}
-              imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ"
-              staggered
-            />
+            {curatedBooks.map((book, index) => (
+              <BookCard
+                key={book.id}
+                slug={book.slug}
+                title={book.title}
+                author={book.author?.name || "Unknown"}
+                price={book.price}
+                originalPrice={book.originalPrice ?? undefined}
+                imageUrl={book.imageUrl || ""}
+                badge={book.badge as "Best Seller" | "New" | "Sale" | undefined}
+                staggered={index % 2 === 1}
+              />
+            ))}
           </div>
 
           <div className="flex justify-center pt-4">
@@ -123,9 +79,9 @@ export default function Home() {
 
                 <div className="relative z-10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] transform transition-transform duration-700 group-hover:scale-[1.03]">
                   <img
-                    alt="The Midnight Library"
+                    alt={bestseller?.title || "Bestseller"}
                     className="w-full aspect-[2/3] object-cover editorial-inner filter contrast-125"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUSnJQXi3d6_3bNq-LBgUSrEGktWiDneEG50B-geqUigNw1MBagVxjCKJITMmlKO_ANnfno6Qw3jBSu5XASU2PQGKqewyD1rLHVZdE-uqho8sMhq1ZEUgof7u5jBPl_LX3mcp77dl-RiRZGQMA8OnmtyDR8CkPfzb1Fg0-XnU8GS-Tv66aSvcbTOEdRKV7MJPYRIYiYbFZKKzpOi2U9FlorkJafoiEds3O0NYlLuibzSrUqouwPqrBdJ9EJTJBFCW3c5prL2qs5IZP"
+                    src={bestseller?.imageUrl || ""}
                   />
 
                   <div className="absolute top-12 -right-8 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase px-6 py-2 rotate-90 origin-bottom-right shadow-xl">
@@ -148,12 +104,10 @@ export default function Home() {
 
               <div className="flex flex-col gap-2 mb-10">
                 <h3 className="font-headline-h1 text-5xl md:text-7xl tracking-tight leading-[1.1] mb-2">
-                  The Midnight
-                  <br />
-                  <i className="text-[#FAF3E0]/70 font-light">Library</i>
+                  {bestseller?.title || "Featured Bestseller"}
                 </h3>
                 <span className="font-newsreader italic text-2xl text-[#FAF3E0]/50">
-                  Matt Haig
+                  {bestseller?.author?.name || ""}
                 </span>
               </div>
 
@@ -163,7 +117,7 @@ export default function Home() {
                     Genre
                   </span>
                   <span className="font-newsreader text-sm tracking-wide">
-                    Contemporary Fiction
+                    {bestseller?.category?.name || "Fiction"}
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -171,7 +125,7 @@ export default function Home() {
                     Pages
                   </span>
                   <span className="font-newsreader text-sm tracking-wide">
-                    304 p.
+                    {bestseller?.pages ? `${bestseller.pages} p.` : "—"}
                   </span>
                 </div>
                 <div className="col-span-2 flex flex-col gap-3 pt-4 border-t border-[#FAF3E0]/10">
@@ -179,10 +133,7 @@ export default function Home() {
                     Synopsis
                   </span>
                   <p className="font-body-md text-sm leading-loose text-[#FAF3E0]/70 text-justify">
-                    Between life and death there is a library, and within that
-                    library, the shelves go on forever. Every book provides a
-                    chance to try another life you could have lived. To see how
-                    things would be if you had made other choices.
+                    {bestseller?.synopsis?.split("\n")[0] || ""}
                   </p>
                 </div>
               </div>
@@ -193,17 +144,21 @@ export default function Home() {
                     Edition Price
                   </span>
                   <div className="flex items-center gap-4">
-                    <span className="font-headline-h3 text-lg text-[#FAF3E0]/40 line-through">
-                      Rp 210.000
-                    </span>
-                    <span className="font-label-sm text-[10px] tracking-widest uppercase bg-primary/90 text-white px-3 py-1">
-                      -21%
-                    </span>
+                    {bestseller?.originalPrice && (
+                      <>
+                        <span className="font-headline-h3 text-lg text-[#FAF3E0]/40 line-through">
+                          Rp {bestseller.originalPrice.toLocaleString("id-ID")}
+                        </span>
+                        <span className="font-label-sm text-[10px] tracking-widest uppercase bg-primary/90 text-white px-3 py-1">
+                          -{Math.round((1 - bestseller.price / bestseller.originalPrice) * 100)}%
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <div className="font-headline-h3 text-3xl mt-1">Rp 165.000</div>
+                  <div className="font-headline-h3 text-3xl mt-1">Rp {bestseller?.price.toLocaleString("id-ID") || "0"}</div>
                 </div>
                 <Link
-                  href="/catalog/the-midnight-library"
+                  href={`/catalog/${bestseller?.slug || ""}`}
                   className="w-full text-center md:w-auto bg-[#FAF3E0] text-[#1E3A5F] font-newsreader uppercase tracking-widest text-xs px-10 py-5 hover:bg-primary hover:text-white transition-all duration-500"
                 >
                   Acquire Book
@@ -235,44 +190,7 @@ export default function Home() {
 
           <div className="md:col-span-7 flex flex-col border-t border-outline-variant pt-6">
             <div className="-mx-4 md:-mx-8 flex flex-col">
-              {[
-                {
-                  id: "01",
-                  title: "Klara and the Sun",
-                  author: "Kazuo Ishiguro",
-                  price: 185000,
-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXdtxVvjzntwnPWBLeaFKKgQq6m_ZFSqU3PM-W-mqlXoDshh1kan0FRZoXJMCIOZiK5NEXQLNwKAqiEpaFVvmbSJzmo-0RQpivV5pu9vQTdWU27XIYZa3MDkYKklXPQHpIk5iqmCvsF95h9dCLIJ-iR4HCVQDOUgMNmhTQHtKeqWNZKUuwszivfU6O9_v1rEzhNJgYK9K-mw42NeiayxeGSyAS1XfURwCIFg8DzLLCCTl5E7hYUbFLLO_iUeKqEZ1PxFmwiHtutZ2N",
-                  desc: "A thrilling and profound novel from the Nobel Prize winner, asking what it means to love in a changing world.",
-                  slug: "klara-and-the-sun",
-                },
-                {
-                  id: "02",
-                  title: "Normal People",
-                  author: "Sally Rooney",
-                  price: 150000,
-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ",
-                  desc: "A captivating exploration of modern relationships and coming of age in the 21st century.",
-                  slug: "normal-people",
-                },
-                {
-                  id: "03",
-                  title: "The Secret History",
-                  author: "Donna Tartt",
-                  price: 210000,
-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO",
-                  desc: "A modern classic combining brilliant character studies with a gripping murder mystery.",
-                  slug: "the-secret-history",
-                },
-                {
-                  id: "04",
-                  title: "A Little Life",
-                  author: "Hanya Yanagihara",
-                  price: 250000,
-                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpQv7ds9jqq7B8Fmp6MqcSC7VbSpsfIGtfyw2zbjfQhH_6YTYR_VS3Y6CL_avks9skK_IrFNswjVS0jcbXG1BXob66UW1DZhnD78gr-G4VTsbPxkAkewSvdeXfYzH9y1qZNMQF0cDxdgT9FrGzt6YdTKxxAJc0OT5AMEGgoP1qiFw4F11o0nAkgLH433jx977XZfRqwrnx0Ao-yRfHimvmgl-RrdkZ1dn6vej5fA5p8Cstyp2TriA8u7Mw3h8zIqJNlzfHJ79S0T91",
-                  desc: "A beautifully written, intensely moving narrative of four friends in New York City.",
-                  slug: "a-little-life",
-                },
-              ].map((item, index) => (
+              {newArrivals.map((item, index) => (
                 <div
                   key={item.id}
                   className={`group ${index === 0
@@ -293,7 +211,7 @@ export default function Home() {
                           : "text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500"
                           }`}
                       >
-                        {item.id}
+                        {String(index + 1).padStart(2, "0")}
                       </span>
                       <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
                         <h3
@@ -310,7 +228,7 @@ export default function Home() {
                             : "text-on-surface-variant transition-colors duration-500"
                             }`}
                         >
-                          {item.author}
+                          {item.author?.name || ""}
                         </span>
                       </div>
                     </div>
@@ -344,11 +262,11 @@ export default function Home() {
                         <img
                           alt={item.title}
                           className="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner"
-                          src={item.img}
+                          src={item.imageUrl || ""}
                         />
                         <div className="flex flex-col justify-end">
                           <p className="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">
-                            {item.desc}
+                            {item.synopsis?.split("\n")[0] || ""}
                           </p>
                           <Link
                             href={`/catalog/${item.slug}`}
@@ -380,21 +298,10 @@ export default function Home() {
             <div className="w-12 h-[1px] bg-primary mt-2"></div>
           </div>
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 max-w-[800px] mx-auto">
-            {[
-              "Fiction",
-              "Non-Fiction",
-              "Self-Help",
-              "Romance",
-              "Business",
-              "Biography",
-              "Science",
-              "Children's",
-              "History",
-              "Psychology",
-            ].map((genre) => (
-              <button key={genre} className="genre-chip">
-                {genre}
-              </button>
+            {genres.map((genre) => (
+              <Link key={genre.id} href={`/catalog?genre=${genre.slug}`} className="genre-chip">
+                {genre.name}
+              </Link>
             ))}
           </div>
         </div>
@@ -413,57 +320,24 @@ export default function Home() {
             <div className="w-12 h-[1px] bg-primary mt-2"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="testimonial-card">
-              <p className="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
-                Koleksi bukunya sangat berkualitas. Setiap rekomendasi selalu
-                tepat sasaran dan pengiriman sangat cepat!
-              </p>
-              <div className="mt-6 pt-4 border-t border-outline-variant/30">
-                <div className="flex items-center gap-1 text-amber-500 text-sm mb-2">
-                  ★★★★★
-                </div>
-                <div className="font-label-sm text-label-sm text-on-surface">
-                  Aisyah Putri
-                </div>
-                <div className="font-caption text-caption text-on-surface-variant">
-                  Jakarta
-                </div>
-              </div>
-            </div>
-            <div className="testimonial-card">
-              <p className="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
-                Toko buku favorit saya! Pelayanan ramah dan selalu ada
-                buku-buku yang sulit ditemukan di tempat lain.
-              </p>
-              <div className="mt-6 pt-4 border-t border-outline-variant/30">
-                <div className="flex items-center gap-1 text-amber-500 text-sm mb-2">
-                  ★★★★★
-                </div>
-                <div className="font-label-sm text-label-sm text-on-surface">
-                  Rizky Pratama
-                </div>
-                <div className="font-caption text-caption text-on-surface-variant">
-                  Bandung
+            {testimonials.map((t) => (
+              <div key={t.id} className="testimonial-card">
+                <p className="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
+                  {t.text}
+                </p>
+                <div className="mt-6 pt-4 border-t border-outline-variant/30">
+                  <div className="flex items-center gap-1 text-amber-500 text-sm mb-2">
+                    {"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}
+                  </div>
+                  <div className="font-label-sm text-label-sm text-on-surface">
+                    {t.name}
+                  </div>
+                  <div className="font-caption text-caption text-on-surface-variant">
+                    {t.city}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="testimonial-card">
-              <p className="font-headline-h1 text-lg italic text-on-surface leading-relaxed pt-8">
-                Senang bisa menemukan toko buku dengan kurasi yang bagus. Buku
-                selalu dalam kondisi perfect.
-              </p>
-              <div className="mt-6 pt-4 border-t border-outline-variant/30">
-                <div className="flex items-center gap-1 text-amber-500 text-sm mb-2">
-                  ★★★★★
-                </div>
-                <div className="font-label-sm text-label-sm text-on-surface">
-                  Dewi Lestari
-                </div>
-                <div className="font-caption text-caption text-on-surface-variant">
-                  Surabaya
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -483,53 +357,29 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                date: "October 12, 2024",
-                title: "The Resurgence of Print: Why Physical Books Endure",
-                desc: "Exploring the tactile pleasure of paper and ink in an increasingly digital world, and why the physical object matters more than ever.",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBTAfoLSLK6gliayaPI1sAYPmgfuCo4Spdmymp5o1cIlxmzx_Cj65JR5PbIrQbKdsG4Xs_yq9TCWE6O6JsB-XgVqPI48e_6dDQ_whpQy0KXatfoFS_4drIMR9qtMuPAFA150wJaeFsorMtlID09Ta_vb3XDhpVKKpDI35EU6LctRQz_Ehj_ZIUIHoEslgJuVMbEW-cij3Rq_wK45nW8QgwPVgot1TKuFTWoTz7HCyb0L4UWxvX0b5PvjmP1ZnKOd0OFurffgo_LSwD7",
-                slug: "resurgence-of-print",
-              },
-              {
-                date: "October 05, 2024",
-                title: "Curating Your Personal Library",
-                desc: "Tips and philosophies for building a collection that reflects your intellectual journey and aesthetic sensibilities.",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCN135f6k9HHk3K_SbJF2SEkOFq7Ln2lCUYPjOOotE1HHra5JXQA2plhokI0adL-M4EaXRkvLAbnCj9st8MX0hS7CTxLA9KbmaankbcrlcrTe3PoWyM6rMDjlaYgKsiXC3dlI7yp34rj7basd497qwnLjk4a1Xrfa7koaGkvGUVyE1ujQy54_35AHhwpLyfV1hDaNffp1YAjYN9PDEmrAXUxDJEsMcTetVqMec9Vt1tm0KtXZP2in1Yq9cBd1pRXx7DZUtOLEsEweCq",
-                slug: "curating-personal-library",
-                className: "md:mt-12",
-              },
-              {
-                date: "September 28, 2024",
-                title: "Hidden Gems of 20th Century Fiction",
-                desc: "A look back at underrated masterpieces that deserve a prominent place on your bedside table.",
-                img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAKPD5ZlPPPGZq6ofsro3-LBqVErv52t7RhAW-xhb__m-_op0q2moVnyDEFt2MTGDqjTzJDj8hvavnNRK1P-gcZZUAzhG6D4BUhp441A0GRrSAsIluCsDmTi6PyhiadEg2fpY7m2jqHBQwHm6SII9Pwz2A9YYq4HlPiWOY22cToqesxpV2p-Qy2mRJKzr1fTLJEjTmiwb9B64EVdBeWtuAEoOQvLwL461RxOElWxlreg3RHiXLDzmRc1Fr4FA_e41FGX_-QU5uXBNY5",
-                slug: "hidden-gems-20th-century",
-              },
-            ].map((article) => (
+            {articles.map((article, index) => (
               <Link
-                key={article.slug}
+                key={article.id}
                 href={`/journal/${article.slug}`}
-                className={`flex flex-col group cursor-pointer ${article.className || ""
-                  }`}
+                className={`flex flex-col group cursor-pointer ${index === 1 ? "md:mt-12" : ""}`}
               >
                 <div className="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
                   <img
-                    alt="Article Image"
+                    alt={article.title}
                     className="w-full h-64 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
-                    src={article.img}
+                    src={article.imageUrl || ""}
                   />
                 </div>
                 <div className="flex flex-col gap-4">
                   <span className="font-newsreader italic text-sm text-on-surface-variant">
-                    {article.date}
+                    {article.publishedAt?.toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }) || ""}
                   </span>
                   <h3 className="font-headline-h3 text-2xl text-on-surface group-hover:text-primary transition-colors leading-snug">
                     {article.title}
                   </h3>
                   <div className="w-8 h-[1px] bg-outline-variant"></div>
                   <p className="font-body-md text-on-surface-variant line-clamp-3">
-                    {article.desc}
+                    {article.excerpt}
                   </p>
                 </div>
               </Link>

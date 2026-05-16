@@ -1,219 +1,400 @@
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
+import { SearchResults } from "@/components/catalog/SearchResults";
+import { PriceFilter } from "@/components/catalog/PriceFilter";
+import { SortDropdown } from "@/components/catalog/SortDropdown";
+import { MobileFilterDrawer } from "@/components/catalog/MobileFilterDrawer";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { buildFilterUrl } from "@/lib/url-builder";
 
-export default function CatalogPage() {
-  const books = [
-    {
-      id: "1",
-      slug: "normal-people",
-      title: "Normal People",
-      author: "Sally Rooney",
-      price: 125000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ",
-      badge: "New",
-      staggered: false,
-    },
-    {
-      id: "2",
-      slug: "norwegian-wood",
-      title: "Norwegian Wood",
-      author: "Haruki Murakami",
-      price: 145000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAltnwkDOLQ_vcedkVGnGXmE62gQZ9H24jRhKZxE5OqC8mpBsB-q2uWpxzbhBLbmrlCHTbY9G9A3yvPmECBqXEhpK1ECC1uAD32-WW6KOZYVfA7BSaNqMCv_oCZDXSJ26W3ZtLlrLIFGjYh4YGRlsn_zWgLrIlmYxDoICXgc7EWDeiIGGZUpYBDC45Ankb4KyxEkZUN7HRW6oCyg-b3DKqdjiV7R1DSwkTKQBAwNbHoWuPZ8_SCulwJht13yDgQZdi5v09ql5GNIWqO",
-      badge: "Best Seller",
-      staggered: true,
-    },
-    {
-      id: "3",
-      slug: "the-secret-history",
-      title: "The Secret History",
-      author: "Donna Tartt",
-      price: 165750,
-      originalPrice: 195000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCN135f6k9HHk3K_SbJF2SEkOFq7Ln2lCUYPjOOotE1HHra5JXQA2plhokI0adL-M4EaXRkvLAbnCj9st8MX0hS7CTxLA9KbmaankbcrlcrTe3PoWyM6rMDjlaYgKsiXC3dlI7yp34rj7basd497qwnLjk4a1Xrfa7koaGkvGUVyE1ujQy54_35AHhwpLyfV1hDaNffp1YAjYN9PDEmrAXUxDJEsMcTetVqMec9Vt1tm0KtXZP2in1Yq9cBd1pRXx7DZUtOLEsEweCq",
-      badge: "Sale",
-      staggered: false,
-    },
-    {
-      id: "4",
-      slug: "to-the-lighthouse",
-      title: "To the Lighthouse",
-      author: "Virginia Woolf",
-      price: 110000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpQv7ds9jqq7B8Fmp6MqcSC7VbSpsfIGtfyw2zbjfQhH_6YTYR_VS3Y6CL_avks9skK_IrFNswjVS0jcbXG1BXob66UW1DZhnD78gr-G4VTsbPxkAkewSvdeXfYzH9y1qZNMQF0cDxdgT9FrGzt6YdTKxxAJc0OT5AMEGgoP1qiFw4F11o0nAkgLH433jx977XZfRqwrnx0Ao-yRfHimvmgl-RrdkZ1dn6vej5fA5p8Cstyp2TriA8u7Mw3h8zIqJNlzfHJ79S0T91",
-      staggered: true,
-    },
-    {
-      id: "5",
-      slug: "bumi-manusia",
-      title: "Bumi Manusia",
-      author: "Pramoedya Ananta Toer",
-      price: 135000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDUSnJQXi3d6_3bNq-LBgUSrEGktWiDneEG50B-geqUigNw1MBagVxjCKJITMmlKO_ANnfno6Qw3jBSu5XASU2PQGKqewyD1rLHVZdE-uqho8sMhq1ZEUgof7u5jBPl_LX3mcp77dl-RiRZGQMA8OnmtyDR8CkPfzb1Fg0-XnU8GS-Tv66aSvcbTOEdRKV7MJPYRIYiYbFZKKzpOi2U9FlorkJafoiEds3O0NYlLuibzSrUqouwPqrBdJ9EJTJBFCW3c5prL2qs5IZP",
-      staggered: false,
-    },
-    {
-      id: "6",
-      slug: "cantik-itu-luka",
-      title: "Cantik Itu Luka",
-      author: "Eka Kurniawan",
-      price: 150000,
-      imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXdtxVvjzntwnPWBLeaFKKgQq6m_ZFSqU3PM-W-mqlXoDshh1kan0FRZoXJMCIOZiK5NEXQLNwKAqiEpaFVvmbSJzmo-0RQpivV5pu9vQTdWU27XIYZa3MDkYKklXPQHpIk5iqmCvsF95h9dCLIJ-iR4HCVQDOUgMNmhTQHtKeqWNZKUuwszivfU6O9_v1rEzhNJgYK9K-mw42NeiayxeGSyAS1XfURwCIFg8DzLLCCTl5E7hYUbFLLO_iUeKqEZ1PxFmwiHtutZ2N",
-      badge: "New",
-      staggered: true,
-    },
-  ];
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const params = await searchParams;
+  const category = params.category;
+  const author = params.author;
+  const genre = params.genre;
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
+  const sort = params.sort || "newest";
+  const page = Number(params.page) || 1;
+  const perPage = 12;
+
+  // Build Prisma Where
+  const where: any = { status: "Active" };
+  if (category) where.category = { slug: category };
+  if (author) where.author = { slug: author };
+  if (genre) where.genres = { some: { genre: { slug: genre } } };
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) where.price.gte = minPrice;
+    if (maxPrice) where.price.lte = maxPrice;
+  }
+
+  // Build Prisma OrderBy
+  const orderBy =
+    sort === "price-asc"
+      ? { price: "asc" }
+      : sort === "price-desc"
+      ? { price: "desc" }
+      : sort === "bestseller"
+      ? { isFeaturedBestseller: "desc" }
+      : { createdAt: "desc" };
+
+  // Fetch Data
+  const [books, filteredTotal, categories, authors, genres] = await Promise.all([
+    prisma.book.findMany({
+      where,
+      include: { author: true, category: true },
+      orderBy: orderBy as any,
+      take: perPage,
+      skip: (page - 1) * perPage,
+    }),
+    prisma.book.count({ where }),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+    }),
+    prisma.author.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+      take: 8, // Just top 8 for sidebar to avoid clutter
+    }),
+    prisma.genre.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
+  const hasActiveFilters = category || author || genre || minPrice || maxPrice;
+
+  const currentParams = {
+    ...(category && { category }),
+    ...(author && { author }),
+    ...(genre && { genre }),
+    ...(minPrice && { minPrice: minPrice.toString() }),
+    ...(maxPrice && { maxPrice: maxPrice.toString() }),
+    ...(sort !== "newest" && { sort }),
+    ...(page > 1 && { page: page.toString() }),
+  };
+
+  const SidebarContent = (
+    <>
+      {/* Search */}
+      <div>
+        <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">
+          Search Index
+        </h3>
+        <SearchResults />
+      </div>
+
+      {/* Category Filter */}
+      <div>
+        <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">
+          Categories
+        </h3>
+        <div className="flex flex-col gap-4">
+          {categories.map((cat) => {
+            const isActive = category === cat.slug;
+            return (
+              <Link
+                key={cat.id}
+                href={buildFilterUrl(currentParams, { category: isActive ? null : cat.slug })}
+                className={`ledger-link ${
+                  isActive ? "text-primary font-semibold border-b border-primary w-fit pb-1" : ""
+                }`}
+              >
+                {cat.name}
+                <span className="text-xs text-on-surface-variant/50 ml-2">
+                  ({cat._count.books})
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Genre Tags (New) */}
+      <div>
+        <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">
+          Genres
+        </h3>
+        <div className="flex flex-col gap-4">
+          {genres
+            .filter((g) => g._count.books > 0)
+            .map((g) => {
+              const isActive = genre === g.slug;
+              return (
+                <Link
+                  key={g.id}
+                  href={buildFilterUrl(currentParams, { genre: isActive ? null : g.slug })}
+                  className={`ledger-link ${
+                    isActive ? "text-primary font-semibold border-b border-primary w-fit pb-1" : ""
+                  }`}
+                >
+                  {g.name}
+                  <span className="text-xs text-on-surface-variant/50 ml-2">
+                    ({g._count.books})
+                  </span>
+                </Link>
+              );
+            })}
+        </div>
+      </div>
+
+      {/* Author Filter */}
+      <div>
+        <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">
+          Curated Authors
+        </h3>
+        <div className="flex flex-col gap-4">
+          {authors
+            .filter((a) => a._count.books > 0)
+            .map((a) => {
+              const isActive = author === a.slug;
+              return (
+                <Link
+                  key={a.id}
+                  href={buildFilterUrl(currentParams, { author: isActive ? null : a.slug })}
+                  className={`ledger-link ${
+                    isActive ? "text-primary font-semibold border-b border-primary w-fit pb-1" : ""
+                  }`}
+                >
+                  {a.name}
+                </Link>
+              );
+            })}
+        </div>
+      </div>
+
+      {/* Price Filter (Client Component) */}
+      <PriceFilter currentMin={minPrice} currentMax={maxPrice} />
+
+      {/* Clear All */}
+      {hasActiveFilters && (
+        <Link
+          href="/catalog"
+          className="text-primary hover:text-on-surface transition-colors font-label-sm uppercase tracking-[0.2em] text-[10px] flex items-center gap-2"
+        >
+          <span className="material-symbols-outlined text-[14px]">close</span>
+          Clear All Filters
+        </Link>
+      )}
+    </>
+  );
 
   return (
     <>
       <PublicNavbar />
-      
+
       <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-12">
         {/* Breadcrumb & Header */}
         <div className="mb-16">
           <div className="flex items-center gap-2 font-label-sm text-on-surface-variant mb-6 uppercase tracking-widest text-[11px]">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link href="/" className="hover:text-primary transition-colors">
+              Home
+            </Link>
             <span className="opacity-50">/</span>
-            <span className="text-on-surface font-semibold border-b border-primary">Books</span>
+            <span className="text-on-surface font-semibold border-b border-primary">
+              Books
+            </span>
           </div>
-          
+
           <div className="border-t-2 border-outline pt-8 pb-6 border-b border-outline-variant/30 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="font-display-lg text-6xl mb-4 text-on-surface tracking-tight">All Books</h1>
+              <h1 className="font-display-lg text-6xl mb-4 text-on-surface tracking-tight">
+                All Books
+              </h1>
               <p className="font-newsreader italic text-xl text-on-surface-variant max-w-xl">
                 Browse our complete collection of curated literature.
               </p>
             </div>
             <div className="font-label-sm uppercase tracking-[0.2em] text-xs text-on-surface text-right border-l border-outline-variant/50 pl-6 hidden md:block">
-              Total Books<br/>
-              <span className="font-newsreader text-2xl italic text-primary">245</span>
+              Total Books
+              <br />
+              <span className="font-newsreader text-2xl italic text-primary">
+                {filteredTotal}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Sidebar Filters */}
+          {/* Sidebar Filters (Desktop) */}
           <aside className="hidden lg:flex flex-col gap-16 col-span-3">
-            {/* Search */}
-            <div>
-              <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">Search Index</h3>
-              <div className="relative border-b border-outline">
-                <input type="text" placeholder="Title, Author, or ISBN..." className="w-full bg-transparent py-2 pr-8 font-newsreader italic text-lg text-on-surface placeholder-on-surface-variant/50 focus:outline-none transition-colors" />
-                <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] cursor-pointer hover:text-primary transition-colors">search</span>
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            <div>
-              <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">Genres & Collections</h3>
-              <div className="flex flex-col gap-4">
-                <Link href="#" className="ledger-link active">Contemporary Fiction</Link>
-                <Link href="#" className="ledger-link">Classic Literature</Link>
-                <Link href="#" className="ledger-link">Non-Fiction & Essays</Link>
-                <Link href="#" className="ledger-link">Poetry & Prose</Link>
-                <Link href="#" className="ledger-link">Art & Design Theory</Link>
-              </div>
-            </div>
-
-            {/* Author Filter */}
-            <div>
-              <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">Curated Authors</h3>
-              <div className="flex flex-col gap-4">
-                <Link href="#" className="ledger-link">Haruki Murakami</Link>
-                <Link href="#" className="ledger-link">Virginia Woolf</Link>
-                <Link href="#" className="ledger-link">Pramoedya Ananta Toer</Link>
-                <Link href="#" className="ledger-link">Sally Rooney</Link>
-                <Link href="#" className="ledger-link">Donna Tartt</Link>
-              </div>
-              <button className="mt-6 text-[10px] font-label-sm uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-1">View Full Directory</button>
-            </div>
-
-            {/* Price Filter */}
-            <div>
-              <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">Price Range (IDR)</h3>
-              <div className="flex items-center gap-4 border-b border-outline pb-2">
-                <div className="flex-1">
-                  <input type="number" placeholder="Min" className="w-full bg-transparent text-center font-newsreader italic text-lg text-on-surface focus:outline-none transition-colors" />
-                </div>
-                <span className="text-outline">~</span>
-                <div className="flex-1">
-                  <input type="number" placeholder="Max" className="w-full bg-transparent text-center font-newsreader italic text-lg text-on-surface focus:outline-none transition-colors" />
-                </div>
-              </div>
-              <button className="w-full mt-6 bg-transparent border border-outline text-outline py-3 font-label-sm uppercase tracking-[0.2em] text-[10px] hover:bg-outline hover:text-white transition-colors">Apply Parameters</button>
-            </div>
+            {SidebarContent}
           </aside>
 
           {/* Book Grid */}
           <div className="col-span-1 lg:col-span-9 flex flex-col">
-            
+            {/* Active Filters Banner */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap items-center gap-3 mb-8 p-4 bg-surface-variant/20 border border-outline-variant/30">
+                <span className="font-label-sm uppercase tracking-widest text-[10px] text-on-surface-variant mr-2">
+                  Filtered By:
+                </span>
+                {category && (
+                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                    {categories.find((c) => c.slug === category)?.name || category}
+                    <Link href={buildFilterUrl(currentParams, { category: null })} className="hover:text-primary">✕</Link>
+                  </span>
+                )}
+                {genre && (
+                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                    {genres.find((g) => g.slug === genre)?.name || genre}
+                    <Link href={buildFilterUrl(currentParams, { genre: null })} className="hover:text-primary">✕</Link>
+                  </span>
+                )}
+                {author && (
+                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                    {authors.find((a) => a.slug === author)?.name || author}
+                    <Link href={buildFilterUrl(currentParams, { author: null })} className="hover:text-primary">✕</Link>
+                  </span>
+                )}
+                {(minPrice || maxPrice) && (
+                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                    {minPrice ? `Rp ${minPrice.toLocaleString("id-ID")}` : "0"} -{" "}
+                    {maxPrice ? `Rp ${maxPrice.toLocaleString("id-ID")}` : "Max"}
+                    <Link href={buildFilterUrl(currentParams, { minPrice: null, maxPrice: null })} className="hover:text-primary">✕</Link>
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Utility Bar */}
             <div className="flex justify-between items-center mb-12">
-              <p className="font-newsreader italic text-on-surface-variant hidden md:block">Showing 1-12 of 245 books</p>
-              <button className="lg:hidden flex items-center gap-2 border border-outline-variant px-4 py-2 font-label-sm text-xs uppercase tracking-widest hover:bg-surface-variant/30 transition-colors">
-                <span className="material-symbols-outlined text-[18px]">tune</span> Filters
-              </button>
-              <div className="flex items-center gap-3">
-                <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-on-surface-variant">Sorted By</span>
-                <select className="bg-transparent border-b border-outline py-1 pr-6 font-newsreader italic text-lg text-on-surface focus:outline-none appearance-none cursor-pointer">
-                  <option>Newest Additions</option>
-                  <option>Bestsellers</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                </select>
-              </div>
+              <p className="font-newsreader italic text-on-surface-variant hidden md:block">
+                Showing {filteredTotal === 0 ? 0 : (page - 1) * perPage + 1}-
+                {Math.min(page * perPage, filteredTotal)} of {filteredTotal} books
+              </p>
+              
+              {/* Mobile Filter Toggle */}
+              <MobileFilterDrawer>
+                {SidebarContent}
+              </MobileFilterDrawer>
+
+              <SortDropdown />
             </div>
 
             {/* The Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
-              {books.map((book) => (
-                <BookCard
-                  key={book.id}
-                  slug={book.slug}
-                  title={book.title}
-                  author={book.author}
-                  price={book.price}
-                  originalPrice={book.originalPrice}
-                  imageUrl={book.imageUrl}
-                  badge={book.badge}
-                  staggered={book.staggered}
-                />
-              ))}
-            </div>
+            {filteredTotal === 0 ? (
+              <div className="text-center py-24 border border-outline-variant/30 bg-surface-variant/10">
+                <p className="font-newsreader italic text-2xl text-on-surface-variant mb-4">
+                  No books found matching your criteria.
+                </p>
+                <Link
+                  href="/catalog"
+                  className="font-label-sm uppercase tracking-widest text-primary hover:text-on-surface transition-colors"
+                >
+                  Clear All Filters
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
+                {books.map((book, index) => (
+                  <BookCard
+                    key={book.id}
+                    slug={book.slug}
+                    title={book.title}
+                    author={book.author?.name || "Unknown"}
+                    price={book.price}
+                    originalPrice={book.originalPrice ?? undefined}
+                    imageUrl={book.imageUrl || ""}
+                    badge={book.badge as "Best Seller" | "New" | "Sale" | undefined}
+                    staggered={index % 2 === 1}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Editorial Pagination */}
-            <div className="mt-24 pt-12 border-t border-outline-variant/30 flex justify-center">
-              <ul className="flex items-center gap-6">
-                <li>
-                  <Link href="#" className="text-on-surface-variant hover:text-primary transition-colors flex items-center">
-                    <span className="material-symbols-outlined font-light text-[24px]">arrow_left_alt</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="font-newsreader text-2xl italic text-primary border-b border-primary pb-1">1</Link>
-                </li>
-                <li>
-                  <Link href="#" className="font-newsreader text-2xl text-on-surface-variant hover:text-primary transition-colors">2</Link>
-                </li>
-                <li>
-                  <Link href="#" className="font-newsreader text-2xl text-on-surface-variant hover:text-primary transition-colors">3</Link>
-                </li>
-                <li>
-                  <span className="font-newsreader text-2xl text-on-surface-variant opacity-50">...</span>
-                </li>
-                <li>
-                  <Link href="#" className="font-newsreader text-2xl text-on-surface-variant hover:text-primary transition-colors">21</Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-on-surface-variant hover:text-primary transition-colors flex items-center">
-                    <span className="material-symbols-outlined font-light text-[24px]">arrow_right_alt</span>
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            {totalPages > 1 && (
+              <div className="mt-24 pt-12 border-t border-outline-variant/30 flex justify-center">
+                <ul className="flex items-center gap-6">
+                  {/* Prev */}
+                  <li>
+                    {page > 1 ? (
+                      <Link
+                        href={buildFilterUrl(currentParams, { page: (page - 1).toString() })}
+                        className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
+                      >
+                        <span className="material-symbols-outlined font-light text-[24px]">
+                          arrow_left_alt
+                        </span>
+                      </Link>
+                    ) : (
+                      <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
+                        <span className="material-symbols-outlined font-light text-[24px]">
+                          arrow_left_alt
+                        </span>
+                      </span>
+                    )}
+                  </li>
+
+                  {/* Page Numbers */}
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const p = i + 1;
+                    // Simple pagination logic: show first, last, and +/- 1 from current
+                    if (
+                      p === 1 ||
+                      p === totalPages ||
+                      (p >= page - 1 && p <= page + 1)
+                    ) {
+                      const isActive = p === page;
+                      return (
+                        <li key={p}>
+                          <Link
+                            href={buildFilterUrl(currentParams, { page: p.toString() })}
+                            className={`font-newsreader text-2xl transition-colors ${
+                              isActive
+                                ? "italic text-primary border-b border-primary pb-1"
+                                : "text-on-surface-variant hover:text-primary"
+                            }`}
+                          >
+                            {p}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    if (p === page - 2 || p === page + 2) {
+                      return (
+                        <li key={p}>
+                          <span className="font-newsreader text-2xl text-on-surface-variant opacity-50">
+                            ...
+                          </span>
+                        </li>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {/* Next */}
+                  <li>
+                    {page < totalPages ? (
+                      <Link
+                        href={buildFilterUrl(currentParams, { page: (page + 1).toString() })}
+                        className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
+                      >
+                        <span className="material-symbols-outlined font-light text-[24px]">
+                          arrow_right_alt
+                        </span>
+                      </Link>
+                    ) : (
+                      <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
+                        <span className="material-symbols-outlined font-light text-[24px]">
+                          arrow_right_alt
+                        </span>
+                      </span>
+                    )}
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </main>

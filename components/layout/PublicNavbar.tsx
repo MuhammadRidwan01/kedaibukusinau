@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+import { SearchResults } from "@/components/catalog/SearchResults";
 
 export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,17 +57,11 @@ export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) 
 
               {/* Search Modal */}
               {isSearchOpen && (
-                <div className="absolute top-full right-0 w-[100vw] lg:w-[400px] bg-[#FAF3E0]/95 backdrop-blur-md border-x border-b border-outline-variant/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="px-6 py-4 border-b border-outline-variant/30 flex items-center gap-3">
-                    <span className="material-symbols-outlined font-light text-primary text-[22px]">
-                      search
+                <div className="absolute top-full right-0 w-[100vw] lg:w-[460px] bg-[#FAF3E0]/98 backdrop-blur-md border-x border-b border-outline-variant/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex flex-col animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="px-6 pt-5 pb-2 flex items-center justify-between">
+                    <span className="font-label-sm text-[9px] uppercase tracking-[0.2em] text-on-surface-variant/60">
+                      Search Index
                     </span>
-                    <input
-                      type="text"
-                      autoFocus
-                      placeholder="Search books, authors, or ISBN..."
-                      className="w-full bg-transparent border-none focus:outline-none font-newsreader italic text-lg text-on-surface placeholder:text-on-surface-variant/50"
-                    />
                     <button
                       onClick={() => setIsSearchOpen(false)}
                       className="material-symbols-outlined font-light text-on-surface-variant hover:text-primary text-[20px]"
@@ -74,49 +69,8 @@ export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) 
                       close
                     </button>
                   </div>
-                  
-                  {/* Dummy Results */}
-                  <div className="px-6 py-3 border-b border-outline-variant/30 bg-surface-variant/20">
-                    <span className="font-label-sm text-[11px] tracking-widest text-on-surface-variant uppercase">
-                      Suggested Results
-                    </span>
-                  </div>
-                  <div className="flex flex-col max-h-[60vh] overflow-y-auto">
-                    <Link
-                      href="/catalog/normal-people"
-                      onClick={() => setIsSearchOpen(false)}
-                      className="group/result flex flex-col px-6 py-6 bg-white hover:bg-[#FAF3E0] transition-colors duration-500 border-b border-outline-variant/30"
-                    >
-                      <div className="flex justify-between items-center w-full mb-5">
-                        <div className="flex flex-col">
-                          <h3 className="font-headline-h3 text-xl group-hover/result:text-primary transition-colors">
-                            Normal People
-                          </h3>
-                          <span className="font-newsreader italic text-on-surface-variant opacity-80 text-sm">
-                            Sally Rooney
-                          </span>
-                        </div>
-                        <span className="material-symbols-outlined text-primary transform -rotate-90">
-                          expand_more
-                        </span>
-                      </div>
-                      <div className="flex gap-5">
-                        <img
-                          alt="Normal People"
-                          className="w-16 md:w-20 aspect-[2/3] object-cover shadow-lg editorial-inner"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8oxFq1ypyMPZfkhOAqcefhfYMPRBSDcQBTmEk5W-CcgyZ4sfQpY8p-o0V1ruyFsuFjwVzEqUZDD0rfgFusWZdKWzGltaBBdBbOV2NhNioPZYXmqfQycCr-m8-YjEWCSuZpOnrC7Eflv75kgumKgA9JylMi9SdQebj6dHiVLSZYM5_hoxqovPo92CB-F_udlQrSPkhV_7Vd8GXw0qOGbgJ8Qe1aLfzOBb3AxY3nciu6vwgRc_WhZ_U9y8gYX3tiv0OqyuBrk1NjzQ"
-                        />
-                        <div className="flex flex-col justify-end pb-1">
-                          <p className="font-body-md text-on-surface-variant text-xs leading-relaxed mb-4 line-clamp-3">
-                            A captivating exploration of modern relationships and coming
-                            of age in the 21st century.
-                          </p>
-                          <span className="font-newsreader uppercase text-[10px] tracking-widest text-primary border-b border-primary w-fit pb-1">
-                            View Details &rarr;
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
+                  <div className="px-6 pb-6">
+                    <SearchResults onNavigate={() => setIsSearchOpen(false)} inline autoFocus={true} />
                   </div>
                 </div>
               )}

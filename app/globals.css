@@ -302,3 +302,29 @@ body {
 }
 .wa-float:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(37,211,102,0.45); }
 .wa-float svg { width: 22px; height: 22px; fill: #fff; }
+
+/* === Search Highlight === */
+mark {
+  background-color: transparent;
+  color: #C0392B;
+  font-weight: 600;
+  border-bottom: 2px solid #C0392B;
+  padding: 0 1px;
+}
+
+/* === Ledger Links === */
+.ledger-link {
+  font-family: var(--font-newsreader);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--color-on-surface-variant);
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  padding-bottom: 2px;
+  text-decoration: none;
+}
+.ledger-link:hover,
+.ledger-link.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
