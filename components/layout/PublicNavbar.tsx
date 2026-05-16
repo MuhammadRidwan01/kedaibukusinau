@@ -10,11 +10,10 @@ export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) 
   const pathname = usePathname();
 
   const navLinks = [
-    { name: "Home", href: "/" },
     { name: "Books", href: "/catalog" },
-    { name: "Genres", href: "/genres" },
-    { name: "New Releases", href: "/new-releases" },
-    { name: "The Journal", href: "/journal" },
+    { name: "Journal", href: "/journal" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (

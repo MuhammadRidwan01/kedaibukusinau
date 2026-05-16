@@ -157,7 +157,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-y border-[#FAF3E0]/20 py-8 mb-10">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-y border-[#FAF3E0]/20 py-8 mb-5">
                 <div className="flex flex-col gap-2">
                   <span className="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40">
                     Genre
@@ -187,7 +187,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row items-baseline justify-between gap-8">
+              <div className="flex flex-col md:flex-row items-end justify-between gap-6">
                 <div className="flex flex-col">
                   <span className="font-label-sm text-[9px] uppercase tracking-widest text-[#FAF3E0]/40 mb-2">
                     Edition Price
@@ -275,45 +275,40 @@ export default function Home() {
               ].map((item, index) => (
                 <div
                   key={item.id}
-                  className={`group ${
-                    index === 0
-                      ? "border-b border-outline-variant/30 bg-white shadow-sm hover:[&_.grid]:grid-rows-[1fr] hover:[&_.grid]:opacity-100"
-                      : "border-b border-outline-variant/30 cursor-pointer hover:bg-white hover:shadow-sm"
-                  } px-4 md:px-8 transition-all duration-500`}
+                  className={`group ${index === 0
+                    ? "border-b border-outline-variant/30 bg-white shadow-sm hover:[&_.grid]:grid-rows-[1fr] hover:[&_.grid]:opacity-100"
+                    : "border-b border-outline-variant/30 cursor-pointer hover:bg-white hover:shadow-sm"
+                    } px-4 md:px-8 transition-all duration-500`}
                 >
                   <div
-                    className={`flex items-center justify-between py-6 transition-colors duration-500 ${
-                      index === 0
-                        ? "text-primary"
-                        : "group-hover:text-primary"
-                    }`}
+                    className={`flex items-center justify-between py-6 transition-colors duration-500 ${index === 0
+                      ? "text-primary"
+                      : "group-hover:text-primary"
+                      }`}
                   >
                     <div className="flex items-center gap-6 md:gap-12 w-full">
                       <span
-                        className={`font-newsreader text-sm ${
-                          index === 0
-                            ? "opacity-100"
-                            : "text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500"
-                        }`}
+                        className={`font-newsreader text-sm ${index === 0
+                          ? "opacity-100"
+                          : "text-on-surface-variant opacity-50 group-hover:text-primary transition-colors duration-500"
+                          }`}
                       >
                         {item.id}
                       </span>
                       <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
                         <h3
-                          className={`font-headline-h3 text-2xl ${
-                            index === 0
-                              ? ""
-                              : "text-on-surface group-hover:text-primary transition-colors duration-500"
-                          }`}
+                          className={`font-headline-h3 text-2xl ${index === 0
+                            ? ""
+                            : "text-on-surface group-hover:text-primary transition-colors duration-500"
+                            }`}
                         >
                           {item.title}
                         </h3>
                         <span
-                          className={`font-newsreader italic ${
-                            index === 0
-                              ? "opacity-80"
-                              : "text-on-surface-variant transition-colors duration-500"
-                          }`}
+                          className={`font-newsreader italic ${index === 0
+                            ? "opacity-80"
+                            : "text-on-surface-variant transition-colors duration-500"
+                            }`}
                         >
                           {item.author}
                         </span>
@@ -321,31 +316,28 @@ export default function Home() {
                     </div>
                     <div className="flex items-center gap-6 flex-shrink-0">
                       <span
-                        className={`font-label-sm text-sm hidden md:block ${
-                          index === 0
-                            ? "text-primary"
-                            : "text-on-surface-variant group-hover:text-primary transition-colors"
-                        }`}
+                        className={`font-label-sm text-sm hidden md:block ${index === 0
+                          ? "text-primary"
+                          : "text-on-surface-variant group-hover:text-primary transition-colors"
+                          }`}
                       >
                         Rp {item.price.toLocaleString("id-ID")}
                       </span>
                       <span
-                        className={`material-symbols-outlined transform transition-transform duration-500 ${
-                          index === 0
-                            ? "rotate-180"
-                            : "group-hover:rotate-180 text-on-surface-variant group-hover:text-primary"
-                        }`}
+                        className={`material-symbols-outlined transform transition-transform duration-500 ${index === 0
+                          ? "rotate-180"
+                          : "group-hover:rotate-180 text-on-surface-variant group-hover:text-primary"
+                          }`}
                       >
                         expand_more
                       </span>
                     </div>
                   </div>
                   <div
-                    className={`grid opacity-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                      index === 0
-                        ? "grid-rows-[1fr] opacity-100"
-                        : "grid-rows-[0fr] group-hover:grid-rows-[1fr] group-hover:opacity-100"
-                    }`}
+                    className={`grid opacity-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${index === 0
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] group-hover:grid-rows-[1fr] group-hover:opacity-100"
+                      }`}
                   >
                     <div className="overflow-hidden">
                       <div className="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
@@ -518,9 +510,8 @@ export default function Home() {
               <Link
                 key={article.slug}
                 href={`/journal/${article.slug}`}
-                className={`flex flex-col group cursor-pointer ${
-                  article.className || ""
-                }`}
+                className={`flex flex-col group cursor-pointer ${article.className || ""
+                  }`}
               >
                 <div className="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
                   <img

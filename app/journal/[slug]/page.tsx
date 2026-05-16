@@ -172,7 +172,7 @@ export default function ArticleDetailPage({ params }: { params: { slug: string }
             if (block.type === 'blockquote') {
               return (
                 <blockquote key={index} className="border-l-[3px] border-primary pl-8 font-newsreader italic text-2xl md:text-3xl text-theme-dark-text my-16 leading-relaxed">
-                  "{block.text}"
+                  &quot;{block.text}&quot;
                 </blockquote>
               );
             }
