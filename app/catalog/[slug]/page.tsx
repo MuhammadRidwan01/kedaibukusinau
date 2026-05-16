@@ -2,8 +2,47 @@ import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const book = await prisma.book.findUnique({
+    where: { slug },
+    include: { author: true },
+  });
+
+  if (!book) return {};
+
+  const title = `${book.title} by ${book.author?.name || "Unknown Author"}`;
+  const description = book.synopsis?.substring(0, 160) || `Buy ${book.title} at Kedai Sinau.`;
+
+  return {
+    title: book.title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      type: "article",
+      url: `/catalog/${slug}`,
+      images: [
+        {
+          url: book.imageUrl || "/og-image.png",
+          width: 800,
+          height: 1200,
+          alt: book.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: description,
+      images: [book.imageUrl || "/og-image.png"],
+    },
+  };
+}
 
 export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

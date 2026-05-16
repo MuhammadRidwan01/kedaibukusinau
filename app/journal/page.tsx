@@ -1,7 +1,13 @@
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "The Journal",
+  description: "Essays, interviews, and deep dives into the literary world. A quiet space for thoughtful reading.",
+};
 
 export default async function JournalPage() {
   const [articles, featuredArticle, articleCategories] = await Promise.all([

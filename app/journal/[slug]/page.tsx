@@ -1,117 +1,87 @@
+import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
 import Link from "next/link";
 
-export default function ArticleDetailPage({ params }: { params: { slug: string } }) {
-  // Mock data
-  const article = {
-    title: "The Modern Return to Minimalist Literature",
-    date: "May 12, 2026",
-    readTime: "8 min read",
-    category: "Featured",
-    imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead27d8?q=80&w=1200&auto=format&fit=crop",
-    content: [
-      {
-        type: "paragraph",
-        text: "In an era defined by endless digital noise and maximalist content, readers are increasingly turning toward minimalist prose. We are witnessing a quiet revolution in publishing—a movement away from sprawling, multi-perspective epics and a return to tight, focused, and emotionally resonant storytelling.",
-        dropCap: true,
-      },
-      {
-        type: "paragraph",
-        text: "The allure of minimalism isn't just aesthetic; it's psychological. When the world feels overwhelming, the crisp, unadorned sentences of authors like Sally Rooney or the late Raymond Carver offer a sanctuary of clarity. They don't tell us how to feel; they present the raw materials of human interaction and trust the reader to assemble the emotional weight.",
-      },
-      {
-        type: "heading",
-        text: "The End of Excess",
-      },
-      {
-        type: "paragraph",
-        text: "Consider the meteoric rise of \"Normal People.\" Rooney's prose is famously stripped back. There are no quotation marks to cushion dialogue, no lengthy physical descriptions to anchor the setting. Instead, the focus is entirely on the interstitial spaces between characters—the things left unsaid.",
-      },
-      {
-        type: "blockquote",
-        text: "Minimalism is not a lack of something. It is simply the perfect amount of something.",
-      },
-      {
-        type: "paragraph",
-        text: "This approach requires immense restraint. Writing a minimalist novel is akin to constructing a suspension bridge: every word must bear weight. If one sentence fails, the entire structure sags. The key elements of this resurgence include:",
-      },
-      {
-        type: "list",
-        items: [
-          "Absence of Exposition: Trusting the reader to understand the context through action rather than explanation.",
-          "Focused Timelines: Confining the narrative to a few days, weeks, or a highly specific slice of life.",
-          "Emotional Proximity: Using close third-person or first-person perspectives to eliminate narrative distance."
-        ]
-      },
-      {
-        type: "image",
-        url: "https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?q=80&w=1200&auto=format&fit=crop",
-        caption: "The traditional tools of the minimalist writer."
-      },
-      {
-        type: "paragraph",
-        text: "As we navigate a culture of overstimulation, the minimalist novel stands as an act of rebellion. It asks us to slow down, to read closely, and to find the profound within the mundane."
-      }
-    ]
-  };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await prisma.article.findUnique({
+    where: { slug },
+    include: { category: true },
+  });
 
-  const relatedArticles = [
-    {
-      id: "1",
-      slug: "a-conversation-with-sally-rooney",
-      title: "A Conversation with Sally Rooney",
-      category: "Interview",
-      date: "May 05, 2026",
-      imageUrl: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop"
+  if (!article) return {};
+
+  const title = article.title;
+  const description = article.excerpt || article.content.substring(0, 160);
+
+  return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      type: "article",
+      url: `/journal/${slug}`,
+      images: [
+        {
+          url: article.imageUrl || "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: description,
+      images: [article.imageUrl || "/og-image.png"],
+    },
+  };
+}
+
+export default async function ArticleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await prisma.article.findUnique({
+    where: { slug },
+    include: { category: true },
+  });
+
+  if (!article) return notFound();
+
+  // Mock content for blocks since the database might only store text
+  // We'll treat the article content as the main body
+  const contentBlocks = [
     {
-      id: "2",
-      slug: "analyzing-the-midnight-library",
-      title: "Analyzing The Midnight Library",
-      category: "Book Review",
-      date: "Apr 28, 2026",
-      imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop"
+      type: "paragraph",
+      text: article.content,
+      dropCap: true,
     }
   ];
 
-  const recommendedBooks = [
-    {
-      id: "1",
-      slug: "normal-people",
-      title: "Normal People",
-      author: "Sally Rooney",
-      price: 125000,
-      imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: "2",
-      slug: "conversations-with-friends",
-      title: "Conversations with Friends",
-      author: "Sally Rooney",
-      price: 135000,
-      imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop",
-      staggered: true,
-    },
-    {
-      id: "3",
-      slug: "cathedral",
-      title: "Cathedral",
-      author: "Raymond Carver",
-      price: 150000,
-      imageUrl: "https://images.unsplash.com/photo-1629196914225-83c70624cd8c?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: "4",
-      slug: "beautiful-world-where-are-you",
-      title: "Beautiful World, Where Are You",
-      author: "Sally Rooney",
-      price: 140000,
-      imageUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=600&auto=format&fit=crop",
-      staggered: true,
-    },
-  ];
+  // Related articles (mock or real)
+  const relatedArticles = await prisma.article.findMany({
+    where: { status: "Published", id: { not: article.id } },
+    include: { category: true },
+    take: 2,
+  });
+
+  const recommendedBooks = await prisma.book.findMany({
+    where: { status: "Active" },
+    include: { author: true },
+    take: 4,
+  });
+  const dateStr = article.publishedAt?.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }) || "";
+
+  const readTimeStr = article.readTime ? `${article.readTime} min read` : "5 min read";
 
   return (
     <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text theme-dark">
@@ -133,11 +103,11 @@ export default function ArticleDetailPage({ params }: { params: { slug: string }
         {/* Article Header */}
         <div className="flex flex-col items-center text-center mb-16 max-w-[800px] mx-auto">
           <div className="flex items-center gap-4 mb-6">
-            <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{article.category}</span>
+            <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{article.category?.name || "Editorial"}</span>
             <div className="flex items-center gap-2 font-newsreader italic text-sm text-theme-dark-text/60">
-              <span>{article.date}</span>
+              <span>{dateStr}</span>
               <span className="w-1 h-1 rounded-full bg-theme-dark-text/30"></span>
-              <span>{article.readTime}</span>
+              <span>{readTimeStr}</span>
             </div>
           </div>
           <h1 className="font-display-lg text-5xl md:text-6xl lg:text-7xl text-theme-dark-text tracking-tight leading-[1.1]">
@@ -152,7 +122,7 @@ export default function ArticleDetailPage({ params }: { params: { slug: string }
 
         {/* Article Content */}
         <div className="max-w-[700px] mx-auto font-body-md text-theme-dark-text/80 text-lg leading-loose space-y-8">
-          {article.content.map((block, index) => {
+          {contentBlocks.map((block, index) => {
             if (block.type === 'paragraph') {
               if (block.dropCap) {
                 const firstChar = block.text.charAt(0);
@@ -222,8 +192,8 @@ export default function ArticleDetailPage({ params }: { params: { slug: string }
                   <img className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" src={related.imageUrl} alt={related.title} />
                 </div>
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{related.category}</span>
-                  <span className="font-newsreader italic text-[13px] text-theme-dark-text/60">{related.date}</span>
+                  <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{related.category?.name || "Journal"}</span>
+                  <span className="font-newsreader italic text-[13px] text-theme-dark-text/60">{related.publishedAt?.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}</span>
                 </div>
                 <h3 className="font-headline-h3 text-2xl text-theme-dark-text group-hover:text-primary transition-colors">{related.title}</h3>
               </Link>

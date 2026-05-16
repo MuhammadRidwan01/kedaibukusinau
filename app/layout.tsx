@@ -16,9 +16,43 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Kedai Sinau",
-  description: "Kedai Sinau - A curated index of titles",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  title: {
+    default: "Kedai Sinau | Curated Digital Bookstore",
+    template: "%s | Kedai Sinau",
+  },
+  description: "Kedai Sinau - A curated index of titles that challenge the mind and soothe the soul.",
+  keywords: ["bookstore", "digital books", "literature", "curated collection", "kedai sinau"],
+  authors: [{ name: "Kedai Sinau Team" }],
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "/",
+    siteName: "Kedai Sinau",
+    title: "Kedai Sinau | Curated Digital Bookstore",
+    description: "Discover our curated collection of titles. Books that challenge the mind and soothe the soul.",
+    images: [
+      {
+        url: "/og-image.png", // User should ensure this file exists in /public
+        width: 1200,
+        height: 630,
+        alt: "Kedai Sinau Bookstore",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kedai Sinau | Curated Digital Bookstore",
+    description: "Discover our curated collection of titles.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
+import { HoverPrefetch } from "@/components/common/HoverPrefetch";
 
 export default function RootLayout({
   children,
@@ -37,6 +71,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col text-on-surface">
+        <HoverPrefetch />
         <div className="noise-overlay"></div>
         {children}
       </body>

@@ -6,8 +6,26 @@ import { PriceFilter } from "@/components/catalog/PriceFilter";
 import { SortDropdown } from "@/components/catalog/SortDropdown";
 import { MobileFilterDrawer } from "@/components/catalog/MobileFilterDrawer";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
 import Link from "next/link";
 import { buildFilterUrl } from "@/lib/url-builder";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }): Promise<Metadata> {
+  const params = await searchParams;
+  const category = params.category;
+  const genre = params.genre;
+  const author = params.author;
+
+  let title = "Book Catalog";
+  if (category) title = `${category.charAt(0).toUpperCase() + category.slice(1)} Books`;
+  if (genre) title = `${genre.charAt(0).toUpperCase() + genre.slice(1)} Genre`;
+  if (author) title = `Books by ${author.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}`;
+
+  return {
+    title: title,
+    description: "Browse our complete collection of curated literature, sorted by your preference.",
+  };
+}
 
 export default async function CatalogPage({
   searchParams,
