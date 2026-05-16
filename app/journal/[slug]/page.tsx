@@ -55,7 +55,14 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
   // Mock content for blocks since the database might only store text
   // We'll treat the article content as the main body
-  const contentBlocks = [
+  type ContentBlock = 
+    | { type: "paragraph"; text: string; dropCap?: boolean }
+    | { type: "heading"; text: string }
+    | { type: "blockquote"; text: string }
+    | { type: "list"; items: string[] }
+    | { type: "image"; url: string; caption: string };
+
+  const contentBlocks: ContentBlock[] = [
     {
       type: "paragraph",
       text: article.content,
@@ -117,7 +124,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Hero Image */}
         <div className="w-full relative mb-20 border border-theme-dark-text/10 shadow-lg">
-          <img className="w-full aspect-video md:aspect-[21/9] object-cover grayscale" src={article.imageUrl} alt="Hero Image" />
+          <img className="w-full aspect-video md:aspect-[21/9] object-cover grayscale" src={article.imageUrl || ""} alt="Hero Image" />
         </div>
 
         {/* Article Content */}
@@ -189,7 +196,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               <Link href={`/journal/${related.slug}`} key={related.id} className="flex flex-col group cursor-pointer">
                 <div className="relative overflow-hidden mb-6 border border-theme-dark-text/10">
                   <div className="absolute inset-0 bg-primary/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10"></div>
-                  <img className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" src={related.imageUrl} alt={related.title} />
+                  <img className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" src={related.imageUrl || ""} alt={related.title} />
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{related.category?.name || "Journal"}</span>
@@ -209,13 +216,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-8">
-            {recommendedBooks.map((book) => (
-              <Link key={book.id} href={`/catalog/${book.slug}`} className={`flex flex-col gap-6 group cursor-pointer ${book.staggered ? 'md:mt-8' : ''}`}>
+            {recommendedBooks.map((book, index) => (
+              <Link key={book.id} href={`/catalog/${book.slug}`} className={`flex flex-col gap-6 group cursor-pointer ${index % 2 === 1 ? 'md:mt-8' : ''}`}>
                 <div className="relative p-4 bg-surface-bright/5 border border-theme-dark-text/10 shadow-sm transition-all duration-500 group-hover:-translate-y-2">
-                  <img alt={book.title} className="book-cover w-full object-cover" src={book.imageUrl} />
+                  <img alt={book.title} className="book-cover w-full object-cover" src={book.imageUrl || ""} />
                 </div>
                 <div className="flex flex-col gap-2 text-center">
-                  <span className="font-label-sm text-[10px] uppercase tracking-[0.2em] text-theme-dark-text/60">{book.author}</span>
+                  <span className="font-label-sm text-[10px] uppercase tracking-[0.2em] text-theme-dark-text/60">{book.author?.name || "Unknown"}</span>
                   <h3 className="font-headline-h3 text-lg text-theme-dark-text line-clamp-2">{book.title}</h3>
                   <span className="font-newsreader font-semibold text-base text-primary mt-1">Rp {book.price.toLocaleString("id-ID")}</span>
                 </div>
