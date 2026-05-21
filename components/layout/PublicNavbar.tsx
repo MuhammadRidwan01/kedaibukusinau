@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { SearchResults } from "@/components/catalog/SearchResults";
+import { MobileSearchModal } from "./MobileSearchModal";
 
 export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,9 +56,9 @@ export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) 
                 search
               </button>
 
-              {/* Search Modal */}
+              {/* Search Modal for Desktop */}
               {isSearchOpen && (
-                <div className="absolute top-full right-0 w-[100vw] lg:w-[460px] bg-[#FAF3E0]/98 backdrop-blur-md border-x border-b border-outline-variant/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex flex-col animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="hidden lg:flex absolute top-full right-0 w-[460px] bg-[#FAF3E0]/98 backdrop-blur-md border-x border-b border-outline-variant/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] flex-col animate-in fade-in slide-in-from-top-2 duration-300">
                   <div className="px-6 pt-5 pb-2 flex items-center justify-between">
                     <span className="font-label-sm text-[9px] uppercase tracking-[0.2em] text-on-surface-variant/60">
                       Search Index
@@ -128,6 +129,10 @@ export function PublicNavbar({ theme = "light" }: { theme?: "light" | "dark" }) 
           })}
         </div>
       </div>
+      {/* Mobile Search Modal */}
+      {isSearchOpen && (
+        <MobileSearchModal onClose={() => setIsSearchOpen(false)} />
+      )}
     </>
   );
 }
