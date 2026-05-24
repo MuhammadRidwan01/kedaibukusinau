@@ -53,22 +53,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
   if (!article) return notFound();
 
-  // Mock content for blocks since the database might only store text
-  // We'll treat the article content as the main body
-  type ContentBlock = 
-    | { type: "paragraph"; text: string; dropCap?: boolean }
-    | { type: "heading"; text: string }
-    | { type: "blockquote"; text: string }
-    | { type: "list"; items: string[] }
-    | { type: "image"; url: string; caption: string };
 
-  const contentBlocks: ContentBlock[] = [
-    {
-      type: "paragraph",
-      text: article.content,
-      dropCap: true,
-    }
-  ];
 
   // Related articles (mock or real)
   const relatedArticles = await prisma.article.findMany({
@@ -128,60 +113,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Article Content */}
-        <div className="max-w-[700px] mx-auto font-body-md text-theme-dark-text/80 text-lg leading-loose space-y-8">
-          {contentBlocks.map((block, index) => {
-            if (block.type === 'paragraph') {
-              if (block.dropCap) {
-                const firstChar = block.text.charAt(0);
-                const restOfText = block.text.slice(1);
-                return (
-                  <p key={index}>
-                    <span className="float-left text-7xl leading-none font-newsreader text-theme-dark-text mr-4 mt-2">{firstChar}</span>
-                    {restOfText}
-                  </p>
-                );
-              }
-              return <p key={index}>{block.text}</p>;
-            }
-            if (block.type === 'heading') {
-              return <h2 key={index} className="font-headline-h2 text-3xl md:text-4xl text-theme-dark-text mt-16 mb-6">{block.text}</h2>;
-            }
-            if (block.type === 'blockquote') {
-              return (
-                <blockquote key={index} className="border-l-[3px] border-primary pl-8 font-newsreader italic text-2xl md:text-3xl text-theme-dark-text my-16 leading-relaxed">
-                  &quot;{block.text}&quot;
-                </blockquote>
-              );
-            }
-            if (block.type === 'list') {
-              return (
-                <ul key={index} className="list-disc pl-6 space-y-4 marker:text-primary">
-                  {block.items?.map((item, i) => {
-                    const colonIndex = item.indexOf(':');
-                    if (colonIndex !== -1) {
-                      return (
-                        <li key={i}>
-                          <strong>{item.substring(0, colonIndex + 1)}</strong>
-                          {item.substring(colonIndex + 1)}
-                        </li>
-                      );
-                    }
-                    return <li key={i}>{item}</li>;
-                  })}
-                </ul>
-              );
-            }
-            if (block.type === 'image') {
-              return (
-                <div key={index} className="w-full relative my-16 border border-theme-dark-text/10 shadow-lg">
-                  <img className="w-full aspect-[16/9] object-cover grayscale" src={block.url} alt={block.caption} />
-                  <p className="font-newsreader italic text-sm text-theme-dark-text/50 mt-4 text-center">{block.caption}</p>
-                </div>
-              );
-            }
-            return null;
-          })}
-        </div>
+        <div 
+          className="max-w-[700px] mx-auto prose prose-invert prose-stone prose-lg prose-p:font-body-md prose-p:text-theme-dark-text/80 prose-p:leading-loose prose-p:my-8 prose-headings:font-headline-h2 prose-headings:text-theme-dark-text prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-blockquote:border-l-[3px] prose-blockquote:border-primary prose-blockquote:pl-8 prose-blockquote:font-newsreader prose-blockquote:italic prose-blockquote:text-2xl md:prose-blockquote:text-3xl prose-blockquote:text-theme-dark-text prose-blockquote:my-16 prose-blockquote:leading-relaxed prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-4 prose-ul:marker:text-primary prose-li:text-theme-dark-text/80 prose-img:w-full prose-img:border prose-img:border-theme-dark-text/10 prose-img:shadow-lg prose-img:grayscale prose-img:my-16 prose-a:text-primary hover:prose-a:text-primary/80 prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:font-newsreader prose-p:first-of-type:first-letter:text-theme-dark-text prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-4 prose-p:first-of-type:first-letter:mt-2 prose-p:first-of-type:first-letter:leading-none"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
 
         <hr className="border-theme-dark-text/10 my-32 max-w-[700px] mx-auto" />
 

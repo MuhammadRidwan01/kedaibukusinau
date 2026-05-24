@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
@@ -9,6 +10,44 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import { buildFilterUrl } from "@/lib/url-builder";
+import { cacheLife, cacheTag } from "next/cache";
+
+async function getSidebarData() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("catalog-sidebar");
+  return Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+    }),
+    prisma.author.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+      take: 8, // Just top 8 for sidebar to avoid clutter
+    }),
+    prisma.genre.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { books: true } } },
+    }),
+  ]);
+}
+
+async function getCatalogBooks(where: any, orderBy: any, perPage: number, page: number) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog-books");
+  return Promise.all([
+    prisma.book.findMany({
+      where,
+      include: { author: true, category: true },
+      orderBy: orderBy as any,
+      take: perPage,
+      skip: (page - 1) * perPage,
+    }),
+    prisma.book.count({ where }),
+  ]);
+}
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }): Promise<Metadata> {
   const params = await searchParams;
@@ -27,11 +66,35 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-export default async function CatalogPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}) {
+function CatalogSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-pulse">
+      <aside className="hidden lg:flex flex-col gap-16 col-span-3 pt-4">
+        <div className="h-8 bg-surface-variant/30 w-1/2 mb-2"></div>
+        <div className="h-32 bg-surface-variant/20 w-full mb-6"></div>
+        <div className="h-8 bg-surface-variant/30 w-1/2 mb-2"></div>
+        <div className="h-48 bg-surface-variant/20 w-full mb-6"></div>
+      </aside>
+      <div className="col-span-1 lg:col-span-9 flex flex-col">
+        <div className="flex justify-between items-center mb-12 h-10">
+          <div className="h-4 bg-surface-variant/30 w-32"></div>
+          <div className="h-10 bg-surface-variant/30 w-48 border border-outline-variant/30"></div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="flex flex-col gap-4">
+              <div className="aspect-[2/3] bg-surface-variant/30 w-full"></div>
+              <div className="h-6 bg-surface-variant/30 w-3/4 mt-2"></div>
+              <div className="h-4 bg-surface-variant/30 w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function CatalogContent({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
   const category = params.category;
   const author = params.author;
@@ -64,29 +127,8 @@ export default async function CatalogPage({
       : { createdAt: "desc" };
 
   // Fetch Data
-  const [books, filteredTotal, categories, authors, genres] = await Promise.all([
-    prisma.book.findMany({
-      where,
-      include: { author: true, category: true },
-      orderBy: orderBy as any,
-      take: perPage,
-      skip: (page - 1) * perPage,
-    }),
-    prisma.book.count({ where }),
-    prisma.category.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { books: true } } },
-    }),
-    prisma.author.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { books: true } } },
-      take: 8, // Just top 8 for sidebar to avoid clutter
-    }),
-    prisma.genre.findMany({
-      orderBy: { name: "asc" },
-      include: { _count: { select: { books: true } } },
-    }),
-  ]);
+  const [categories, authors, genres] = await getSidebarData();
+  const [books, filteredTotal] = await getCatalogBooks(where, orderBy, perPage, page);
 
   const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
   const hasActiveFilters = category || author || genre || minPrice || maxPrice;
@@ -137,7 +179,7 @@ export default async function CatalogPage({
         </div>
       </div>
 
-      {/* Genre Tags (New) */}
+      {/* Genre Tags */}
       <div>
         <h3 className="font-label-sm uppercase tracking-[0.2em] text-on-surface mb-6 text-[11px]">
           Genres
@@ -208,8 +250,190 @@ export default async function CatalogPage({
 
   return (
     <>
-      <PublicNavbar />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Sidebar Filters (Desktop) */}
+        <aside className="hidden lg:flex flex-col gap-16 col-span-3">
+          {SidebarContent}
+        </aside>
 
+        {/* Book Grid */}
+        <div className="col-span-1 lg:col-span-9 flex flex-col">
+          {/* Active Filters Banner */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-3 mb-8 p-4 bg-surface-variant/20 border border-outline-variant/30">
+              <span className="font-label-sm uppercase tracking-widest text-[10px] text-on-surface-variant mr-2">
+                Filtered By:
+              </span>
+              {category && (
+                <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                  {categories.find((c) => c.slug === category)?.name || category}
+                  <Link href={buildFilterUrl(currentParams, { category: null })} className="hover:text-primary">✕</Link>
+                </span>
+              )}
+              {genre && (
+                <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                  {genres.find((g) => g.slug === genre)?.name || genre}
+                  <Link href={buildFilterUrl(currentParams, { genre: null })} className="hover:text-primary">✕</Link>
+                </span>
+              )}
+              {author && (
+                <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                  {authors.find((a) => a.slug === author)?.name || author}
+                  <Link href={buildFilterUrl(currentParams, { author: null })} className="hover:text-primary">✕</Link>
+                </span>
+              )}
+              {(minPrice || maxPrice) && (
+                <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
+                  {minPrice ? `Rp ${minPrice.toLocaleString("id-ID")}` : "0"} -{" "}
+                  {maxPrice ? `Rp ${maxPrice.toLocaleString("id-ID")}` : "Max"}
+                  <Link href={buildFilterUrl(currentParams, { minPrice: null, maxPrice: null })} className="hover:text-primary">✕</Link>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Utility Bar */}
+          <div className="flex justify-between items-center mb-12">
+            <p className="font-newsreader italic text-on-surface-variant hidden md:block">
+              Showing {filteredTotal === 0 ? 0 : (page - 1) * perPage + 1}-
+              {Math.min(page * perPage, filteredTotal)} of {filteredTotal} books
+            </p>
+            
+            {/* Mobile Filter Toggle */}
+            <MobileFilterDrawer>
+              {SidebarContent}
+            </MobileFilterDrawer>
+
+            <SortDropdown />
+          </div>
+
+          {/* The Grid */}
+          {filteredTotal === 0 ? (
+            <div className="text-center py-24 border border-outline-variant/30 bg-surface-variant/10">
+              <p className="font-newsreader italic text-2xl text-on-surface-variant mb-4">
+                No books found matching your criteria.
+              </p>
+              <Link
+                href="/catalog"
+                className="font-label-sm uppercase tracking-widest text-primary hover:text-on-surface transition-colors"
+              >
+                Clear All Filters
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
+              {books.map((book, index) => (
+                <BookCard
+                  key={book.id}
+                  slug={book.slug}
+                  title={book.title}
+                  author={book.author?.name || "Unknown"}
+                  price={book.price}
+                  originalPrice={book.originalPrice ?? undefined}
+                  imageUrl={book.imageUrl || ""}
+                  badge={book.badge as "Best Seller" | "New" | "Sale" | undefined}
+                  staggered={index % 2 === 1}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Editorial Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-24 pt-12 border-t border-outline-variant/30 flex justify-center">
+              <ul className="flex items-center gap-6">
+                {/* Prev */}
+                <li>
+                  {page > 1 ? (
+                    <Link
+                      href={buildFilterUrl(currentParams, { page: (page - 1).toString() })}
+                      className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
+                    >
+                      <span className="material-symbols-outlined font-light text-[24px]">
+                        arrow_left_alt
+                      </span>
+                    </Link>
+                  ) : (
+                    <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
+                      <span className="material-symbols-outlined font-light text-[24px]">
+                        arrow_left_alt
+                      </span>
+                    </span>
+                  )}
+                </li>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  const p = i + 1;
+                  if (
+                    p === 1 ||
+                    p === totalPages ||
+                    (p >= page - 1 && p <= page + 1)
+                  ) {
+                    const isActive = p === page;
+                    return (
+                      <li key={p}>
+                        <Link
+                          href={buildFilterUrl(currentParams, { page: p.toString() })}
+                          className={`font-newsreader text-2xl transition-colors ${
+                            isActive
+                              ? "italic text-primary border-b border-primary pb-1"
+                              : "text-on-surface-variant hover:text-primary"
+                          }`}
+                        >
+                          {p}
+                        </Link>
+                      </li>
+                    );
+                  }
+                  if (p === page - 2 || p === page + 2) {
+                    return (
+                      <li key={p}>
+                        <span className="font-newsreader text-2xl text-on-surface-variant opacity-50">
+                          ...
+                        </span>
+                      </li>
+                    );
+                  }
+                  return null;
+                })}
+
+                {/* Next */}
+                <li>
+                  {page < totalPages ? (
+                    <Link
+                      href={buildFilterUrl(currentParams, { page: (page + 1).toString() })}
+                      className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
+                    >
+                      <span className="material-symbols-outlined font-light text-[24px]">
+                        arrow_right_alt
+                      </span>
+                    </Link>
+                  ) : (
+                    <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
+                      <span className="material-symbols-outlined font-light text-[24px]">
+                        arrow_right_alt
+                      </span>
+                    </span>
+                  )}
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function CatalogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) {
+  return (
+    <>
+      <PublicNavbar />
       <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-12">
         {/* Breadcrumb & Header */}
         <div className="mb-16">
@@ -232,191 +456,14 @@ export default async function CatalogPage({
                 Browse our complete collection of curated literature.
               </p>
             </div>
-            <div className="font-label-sm uppercase tracking-[0.2em] text-xs text-on-surface text-right border-l border-outline-variant/50 pl-6 hidden md:block">
-              Total Books
-              <br />
-              <span className="font-newsreader text-2xl italic text-primary">
-                {filteredTotal}
-              </span>
-            </div>
+            {/* The Total Books counter was moved down into the Utility Bar to avoid Suspense mismatch */}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Sidebar Filters (Desktop) */}
-          <aside className="hidden lg:flex flex-col gap-16 col-span-3">
-            {SidebarContent}
-          </aside>
-
-          {/* Book Grid */}
-          <div className="col-span-1 lg:col-span-9 flex flex-col">
-            {/* Active Filters Banner */}
-            {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-3 mb-8 p-4 bg-surface-variant/20 border border-outline-variant/30">
-                <span className="font-label-sm uppercase tracking-widest text-[10px] text-on-surface-variant mr-2">
-                  Filtered By:
-                </span>
-                {category && (
-                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
-                    {categories.find((c) => c.slug === category)?.name || category}
-                    <Link href={buildFilterUrl(currentParams, { category: null })} className="hover:text-primary">✕</Link>
-                  </span>
-                )}
-                {genre && (
-                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
-                    {genres.find((g) => g.slug === genre)?.name || genre}
-                    <Link href={buildFilterUrl(currentParams, { genre: null })} className="hover:text-primary">✕</Link>
-                  </span>
-                )}
-                {author && (
-                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
-                    {authors.find((a) => a.slug === author)?.name || author}
-                    <Link href={buildFilterUrl(currentParams, { author: null })} className="hover:text-primary">✕</Link>
-                  </span>
-                )}
-                {(minPrice || maxPrice) && (
-                  <span className="px-3 py-1 bg-surface border border-outline-variant/50 text-sm font-newsreader italic flex items-center gap-2">
-                    {minPrice ? `Rp ${minPrice.toLocaleString("id-ID")}` : "0"} -{" "}
-                    {maxPrice ? `Rp ${maxPrice.toLocaleString("id-ID")}` : "Max"}
-                    <Link href={buildFilterUrl(currentParams, { minPrice: null, maxPrice: null })} className="hover:text-primary">✕</Link>
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Utility Bar */}
-            <div className="flex justify-between items-center mb-12">
-              <p className="font-newsreader italic text-on-surface-variant hidden md:block">
-                Showing {filteredTotal === 0 ? 0 : (page - 1) * perPage + 1}-
-                {Math.min(page * perPage, filteredTotal)} of {filteredTotal} books
-              </p>
-              
-              {/* Mobile Filter Toggle */}
-              <MobileFilterDrawer>
-                {SidebarContent}
-              </MobileFilterDrawer>
-
-              <SortDropdown />
-            </div>
-
-            {/* The Grid */}
-            {filteredTotal === 0 ? (
-              <div className="text-center py-24 border border-outline-variant/30 bg-surface-variant/10">
-                <p className="font-newsreader italic text-2xl text-on-surface-variant mb-4">
-                  No books found matching your criteria.
-                </p>
-                <Link
-                  href="/catalog"
-                  className="font-label-sm uppercase tracking-widest text-primary hover:text-on-surface transition-colors"
-                >
-                  Clear All Filters
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
-                {books.map((book, index) => (
-                  <BookCard
-                    key={book.id}
-                    slug={book.slug}
-                    title={book.title}
-                    author={book.author?.name || "Unknown"}
-                    price={book.price}
-                    originalPrice={book.originalPrice ?? undefined}
-                    imageUrl={book.imageUrl || ""}
-                    badge={book.badge as "Best Seller" | "New" | "Sale" | undefined}
-                    staggered={index % 2 === 1}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Editorial Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-24 pt-12 border-t border-outline-variant/30 flex justify-center">
-                <ul className="flex items-center gap-6">
-                  {/* Prev */}
-                  <li>
-                    {page > 1 ? (
-                      <Link
-                        href={buildFilterUrl(currentParams, { page: (page - 1).toString() })}
-                        className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
-                      >
-                        <span className="material-symbols-outlined font-light text-[24px]">
-                          arrow_left_alt
-                        </span>
-                      </Link>
-                    ) : (
-                      <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
-                        <span className="material-symbols-outlined font-light text-[24px]">
-                          arrow_left_alt
-                        </span>
-                      </span>
-                    )}
-                  </li>
-
-                  {/* Page Numbers */}
-                  {Array.from({ length: totalPages }).map((_, i) => {
-                    const p = i + 1;
-                    // Simple pagination logic: show first, last, and +/- 1 from current
-                    if (
-                      p === 1 ||
-                      p === totalPages ||
-                      (p >= page - 1 && p <= page + 1)
-                    ) {
-                      const isActive = p === page;
-                      return (
-                        <li key={p}>
-                          <Link
-                            href={buildFilterUrl(currentParams, { page: p.toString() })}
-                            className={`font-newsreader text-2xl transition-colors ${
-                              isActive
-                                ? "italic text-primary border-b border-primary pb-1"
-                                : "text-on-surface-variant hover:text-primary"
-                            }`}
-                          >
-                            {p}
-                          </Link>
-                        </li>
-                      );
-                    }
-                    if (p === page - 2 || p === page + 2) {
-                      return (
-                        <li key={p}>
-                          <span className="font-newsreader text-2xl text-on-surface-variant opacity-50">
-                            ...
-                          </span>
-                        </li>
-                      );
-                    }
-                    return null;
-                  })}
-
-                  {/* Next */}
-                  <li>
-                    {page < totalPages ? (
-                      <Link
-                        href={buildFilterUrl(currentParams, { page: (page + 1).toString() })}
-                        className="text-on-surface-variant hover:text-primary transition-colors flex items-center"
-                      >
-                        <span className="material-symbols-outlined font-light text-[24px]">
-                          arrow_right_alt
-                        </span>
-                      </Link>
-                    ) : (
-                      <span className="text-on-surface-variant opacity-30 flex items-center cursor-not-allowed">
-                        <span className="material-symbols-outlined font-light text-[24px]">
-                          arrow_right_alt
-                        </span>
-                      </span>
-                    )}
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
+        <Suspense fallback={<CatalogSkeleton />}>
+          <CatalogContent searchParams={searchParams} />
+        </Suspense>
       </main>
-
       <PublicFooter />
     </>
   );

@@ -234,29 +234,28 @@ async function main() {
   });
   console.log("✓ Banners seeded");
 
-  // ─── STORE SETTINGS ────────────────────────────────
+  const defaultSettings = {
+    storeName: "Kedai Sinau.",
+    description: "An independent bookstore. We read, select, and sell good books.",
+    whatsapp: "+62812-3456-7890",
+    email: "hello@kedaisinau.com",
+    address: "Jl. Malioboro No. 42, Yogyakarta, Indonesia 55271",
+    instagramUrl: "https://instagram.com/kedaisinau",
+    shopeeUrl: "https://shopee.co.id/kedaisinau",
+    aboutHeroImage: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop",
+    storeStory: "Kedai Sinau started in 2018 as a small shop in a quiet neighborhood. We wanted to build a physical space where people can easily find books that matter to them, away from the noise of large retail chains.\n\nWe read and select every title we sell. We focus on contemporary fiction, non-fiction, and poetry that we genuinely believe are worth your time. Our goal is simple: to connect good books with the people who want to read them.",
+    visionStatement: "To build a space where readers can easily discover high-quality literature and connect with others who share their interests.",
+    missionPoints: JSON.stringify([
+      "Sell books that are carefully selected for their quality.",
+      "Provide a comfortable and quiet physical space for reading.",
+      "Support local and independent authors."
+    ]),
+  };
+
   await prisma.storeSettings.upsert({
     where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      storeName: "Kedai Sinau.",
-      description: "A curated bookstore for the thoughtful reader. We believe in the power of literature to transform minds and nourish souls.",
-      whatsapp: "+62812-3456-7890",
-      email: "hello@kedaisinau.com",
-      address: "Jl. Malioboro No. 42, Yogyakarta, Indonesia 55271",
-      instagramUrl: "https://instagram.com/kedaisinau",
-      shopeeUrl: "https://shopee.co.id/kedaisinau",
-      aboutHeroImage: defaultImg,
-      storeStory: "Founded in 2020 in the heart of Yogyakarta, Kedai Sinau began as a small reading room with a modest collection of hand-picked titles. Our name — meaning 'Learning Corner' in Javanese — reflects our belief that every book is a doorway to understanding.",
-      visionStatement: "To be Southeast Asia's most thoughtful independent bookstore, where every title is chosen with intention and every reader finds their next transformative read.",
-      missionPoints: JSON.stringify([
-        "Curate collections that challenge and inspire",
-        "Support independent publishers and local authors",
-        "Create spaces for literary discourse and community",
-        "Make quality literature accessible to all readers",
-      ]),
-    },
+    update: defaultSettings,
+    create: { id: 1, ...defaultSettings },
   });
   console.log("✓ Store Settings seeded");
 

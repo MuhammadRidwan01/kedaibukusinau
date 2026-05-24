@@ -3,6 +3,7 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
+import { cacheLife, cacheTag } from "next/cache";
 
 export const metadata: Metadata = {
   title: "The Journal",
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default async function JournalPage() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("journal-page");
   const [articles, featuredArticle, articleCategories] = await Promise.all([
     prisma.article.findMany({
       where: { status: "Published" },

@@ -1,12 +1,40 @@
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
+import { prisma } from "@/lib/prisma";
+import { cacheLife, cacheTag } from "next/cache";
+
+async function getCachedSettings() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("store-settings");
+  return await prisma.storeSettings.findFirst();
+}
 
 export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) {
+  return (
+    <Suspense fallback={null}>
+      <FooterContent theme={theme} />
+    </Suspense>
+  );
+}
+
+async function FooterContent({ theme = "light" }: { theme?: "light" | "dark" }) {
+  const settings = await getCachedSettings();
+
+  const storeName = settings?.storeName || "Kedai Sinau.";
+  const description = settings?.description || "An independent bookstore. We read, select, and sell good books.";
+  const instagramUrl = settings?.instagramUrl || "#";
+  const shopeeUrl = settings?.shopeeUrl || "#";
+  const email = settings?.email || "hello@kedaisinau.com";
+  const whatsappRaw = settings?.whatsapp || "+62 812-3456-7890";
+  const whatsappNumber = whatsappRaw.replace(/[^0-9]/g, "");
+  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}` : "#";
+
   return (
     <>
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/6281234567890"
+        href={whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
         className="wa-float"
@@ -23,15 +51,16 @@ export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) 
         <div className="w-full py-20 px-6 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
           <div className="flex flex-col gap-6 md:col-span-1">
             <div className={`text-2xl font-bold font-newsreader tracking-tight ${theme === "dark" ? "text-theme-dark-text" : "text-on-surface"}`}>
-              Kedai Sinau.
+              {storeName}
             </div>
             <p className={`font-newsreader italic text-base leading-relaxed ${theme === "dark" ? "text-theme-dark-text/70" : "text-on-surface-variant"}`}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              {description}
             </p>
             <div className="flex gap-5 mt-4">
               <a
-                href="#"
+                href={instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Instagram"
                 className={`${theme === "dark" ? "text-theme-dark-text/70 hover:text-primary" : "text-on-surface-variant hover:text-primary"} transition-transform hover:scale-110 duration-200`}
                 title="Instagram"
@@ -50,7 +79,9 @@ export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) 
                 </svg>
               </a>
               <a
-                href="#"
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="WhatsApp"
                 className={`${theme === "dark" ? "text-theme-dark-text/70 hover:text-primary" : "text-on-surface-variant hover:text-primary"} transition-transform hover:scale-110 duration-200`}
                 title="WhatsApp"
@@ -65,7 +96,9 @@ export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) 
                 </svg>
               </a>
               <a
-                href="#"
+                href={shopeeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Shopee"
                 className={`${theme === "dark" ? "text-theme-dark-text/70 hover:text-primary" : "text-on-surface-variant hover:text-primary"} transition-transform hover:scale-110 duration-200`}
                 title="Shopee"
@@ -96,6 +129,34 @@ export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) 
                   </text>
                 </svg>
               </a>
+              {settings?.tiktokUrl && (
+                <a
+                  href={settings.tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  className={`${theme === "dark" ? "text-theme-dark-text/70 hover:text-primary" : "text-on-surface-variant hover:text-primary"} transition-transform hover:scale-110 duration-200`}
+                  title="TikTok"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.23-1.15 4.34-2.82 5.83-1.64 1.48-3.9 2.21-6.14 1.95-2.22-.24-4.22-1.35-5.59-3.08-1.39-1.74-1.92-4.04-1.44-6.2.49-2.2 1.92-4.08 3.88-5.06 1.17-.59 2.49-.87 3.8-.82v4.06c-.84.05-1.68.32-2.39.81-.8.56-1.31 1.45-1.41 2.42-.11 1.05.27 2.11.99 2.87.73.78 1.83 1.16 2.91 1.05 1.08-.1 2.05-.71 2.58-1.62.4-.69.58-1.48.58-2.28V.02z" />
+                  </svg>
+                </a>
+              )}
+              {settings?.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className={`${theme === "dark" ? "text-theme-dark-text/70 hover:text-primary" : "text-on-surface-variant hover:text-primary"} transition-transform hover:scale-110 duration-200`}
+                  title="Facebook"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+                  </svg>
+                </a>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-4">
@@ -161,22 +222,31 @@ export function PublicFooter({ theme = "light" }: { theme?: "light" | "dark" }) 
               Visit Us
             </h4>
             <p className={`font-newsreader italic text-sm leading-relaxed ${theme === "dark" ? "text-theme-dark-text/70" : "text-on-surface-variant"}`}>
-              [Street Name / Full Address]
-              <br />
-              [District, City / Regency]
-              <br />
-              [Postal Code, Province]
+              {settings?.address ? (
+                settings.address.split("\n").map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                ))
+              ) : (
+                <>
+                  [Street Name / Full Address]<br />
+                  [District, City / Regency]<br />
+                  [Postal Code, Province]
+                </>
+              )}
             </p>
             <div className={`w-8 h-[1px] my-2 ${theme === "dark" ? "bg-theme-dark-text/30" : "bg-outline-variant"}`}></div>
             <p className={`font-newsreader italic text-sm ${theme === "dark" ? "text-theme-dark-text/70" : "text-on-surface-variant"}`}>
-              [store_email@domain.com]
+              {email}
               <br />
-              +62 xxx xxxx xxxx
+              {whatsappRaw}
             </p>
           </div>
           <div className={`md:col-span-4 pt-12 mt-4 border-t text-center ${theme === "dark" ? "border-theme-dark-text/10" : "border-outline-variant/50"}`}>
             <p className={`font-newsreader uppercase tracking-widest text-xs ${theme === "dark" ? "text-theme-dark-text/50" : "text-on-surface-variant"}`}>
-              © 2026 Kedai Sinau. All Rights Reserved.
+              © 2026 {storeName} All Rights Reserved.
             </p>
           </div>
         </div>

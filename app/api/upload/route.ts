@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const type = (formData.get("type") as string) || "general";
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type") || (formData.get("type") as string) || "general";
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });

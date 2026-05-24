@@ -4,9 +4,13 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { BookCard } from "@/components/ui/BookCard";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { cacheLife, cacheTag } from "next/cache";
 
-export default async function Home() {
-  const [curatedBooks, bestseller, newArrivals, genres, testimonials, articles] = await Promise.all([
+async function getHomeData() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("home-data");
+  return Promise.all([
     prisma.book.findMany({ where: { status: "Active" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 8 }),
     prisma.book.findFirst({ where: { status: "Active", isFeaturedBestseller: true }, include: { author: true, category: true } }),
     prisma.book.findMany({ where: { status: "Active", badge: "New" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 4 }),
@@ -14,6 +18,13 @@ export default async function Home() {
     prisma.testimonial.findMany({ orderBy: { order: "asc" }, take: 3 }),
     prisma.article.findMany({ where: { status: "Published" }, include: { category: true }, orderBy: { publishedAt: "desc" }, take: 3 }),
   ]);
+}
+
+export default async function Home() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("home-page");
+  const [curatedBooks, bestseller, newArrivals, genres, testimonials, articles] = await getHomeData();
   return (
     <>
       <PublicNavbar />

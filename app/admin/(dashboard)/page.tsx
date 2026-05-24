@@ -1,53 +1,35 @@
 import React from "react";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
-export default function AdminDashboard() {
-  const unavailableBooks = [
-    {
-      id: "1",
-      title: "The Art of Stillness",
-      author: "Marcus Thorne",
-      imageUrl:
-        "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=600&auto=format&fit=crop",
-      status: "Unavailable",
-    },
-    {
-      id: "2",
-      title: "Echoes of the Past",
-      author: "Sarah Jenkins",
-      imageUrl:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop",
-      status: "Unavailable",
-    },
-    {
-      id: "3",
-      title: "Urban Landscapes",
-      author: "David Chen",
-      imageUrl: "", // Placeholder to simulate no image
-      status: "Unavailable",
-    },
-  ];
-
-  const recentArticles = [
-    {
-      id: "1",
-      title: "The Resurgence of Print: Why Physical Books Endure",
-      status: "Published",
-      date: "12 May 2024",
-    },
-    {
-      id: "2",
-      title: "Review: Echoes of the Past by Sarah Jenkins",
-      status: "Draft",
-      date: "10 May 2024",
-    },
-    {
-      id: "3",
-      title: "Curator's Choice: Essential Reading for the Modern Stoic",
-      status: "Published",
-      date: "05 May 2024",
-    },
-  ];
+export default async function AdminDashboard() {
+  const session = await auth();
+  
+  // Parallel fetch stats
+  const [
+    totalBooks,
+    totalArticles,
+    unavailableBooksCount,
+    totalCategories,
+    recentUnavailableBooks,
+    recentArticles
+  ] = await Promise.all([
+    prisma.book.count(),
+    prisma.article.count(),
+    prisma.book.count({ where: { availability: "Unavailable" } }),
+    prisma.category.count(),
+    prisma.book.findMany({
+      where: { availability: "Unavailable" },
+      include: { author: true },
+      orderBy: { updatedAt: 'desc' },
+      take: 5
+    }),
+    prisma.article.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    })
+  ]);
 
   return (
     <>
@@ -66,7 +48,7 @@ export default function AdminDashboard() {
             Logged in as:
           </span>
           <span className="font-newsreader italic text-xl border-b border-outline-variant pb-0.5">
-            Admin User
+            {session?.user?.name || "Admin User"}
           </span>
         </div>
       </header>
@@ -82,7 +64,7 @@ export default function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Total Books
             </span>
-            <span className="font-headline-h1 text-5xl">1,248</span>
+            <span className="font-headline-h1 text-5xl">{totalBooks.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -95,7 +77,7 @@ export default function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Total Articles
             </span>
-            <span className="font-headline-h1 text-5xl">86</span>
+            <span className="font-headline-h1 text-5xl">{totalArticles.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -108,7 +90,7 @@ export default function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-primary">
               Unavailable Books
             </span>
-            <span className="font-headline-h1 text-5xl text-primary">12</span>
+            <span className="font-headline-h1 text-5xl text-primary">{unavailableBooksCount.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -121,7 +103,7 @@ export default function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Categories
             </span>
-            <span className="font-headline-h1 text-5xl">24</span>
+            <span className="font-headline-h1 text-5xl">{totalCategories.toLocaleString("id-ID")}</span>
           </div>
         </div>
       </div>
@@ -156,37 +138,43 @@ export default function AdminDashboard() {
               </span>
             </div>
 
-            {unavailableBooks.map((book) => (
-              <div
-                key={book.id}
-                className="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-5 border-b border-outline-variant/40 hover:bg-white transition-colors group"
-              >
-                {book.imageUrl ? (
-                  <img
-                    alt={book.title}
-                    className="w-12 md:w-16 aspect-[2/3] object-cover editorial-inner shadow-sm"
-                    src={book.imageUrl}
-                  />
-                ) : (
-                  <div className="w-12 md:w-16 aspect-[2/3] bg-surface-variant/30 editorial-inner flex items-center justify-center text-on-surface-variant/40">
-                    <span className="material-symbols-outlined">image</span>
+            {recentUnavailableBooks.length === 0 ? (
+               <div className="py-8 text-center text-on-surface-variant font-newsreader italic">
+                 No unavailable books. All inventory is well-stocked.
+               </div>
+            ) : (
+              recentUnavailableBooks.map((book) => (
+                <div
+                  key={book.id}
+                  className="grid grid-cols-[auto_1fr_auto] gap-6 items-center px-4 py-5 border-b border-outline-variant/40 hover:bg-white transition-colors group"
+                >
+                  {book.imageUrl ? (
+                    <img
+                      alt={book.title}
+                      className="w-12 md:w-16 aspect-[2/3] object-cover editorial-inner shadow-sm"
+                      src={book.imageUrl}
+                    />
+                  ) : (
+                    <div className="w-12 md:w-16 aspect-[2/3] bg-surface-variant/30 editorial-inner flex items-center justify-center text-on-surface-variant/40">
+                      <span className="material-symbols-outlined">image</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    <h4 className="font-headline-h3 text-xl group-hover:text-primary transition-colors">
+                      {book.title}
+                    </h4>
+                    <span className="font-newsreader italic text-on-surface-variant text-sm">
+                      {book.author?.name || "Unknown Author"}
+                    </span>
                   </div>
-                )}
-                <div className="flex flex-col gap-1">
-                  <h4 className="font-headline-h3 text-xl group-hover:text-primary transition-colors">
-                    {book.title}
-                  </h4>
-                  <span className="font-newsreader italic text-on-surface-variant text-sm">
-                    {book.author}
-                  </span>
+                  <div className="flex items-center justify-end">
+                    <span className="px-3 py-1 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase">
+                      {book.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-end">
-                  <span className="px-3 py-1 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase">
-                    {book.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -205,30 +193,37 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex flex-col">
-            {recentArticles.map((article) => (
-              <div
-                key={article.id}
-                className="flex flex-col gap-2 py-5 border-b border-outline-variant/40 hover:pl-2 transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`font-label-sm text-[9px] uppercase tracking-widest ${
-                      article.status === "Published"
-                        ? "text-primary"
-                        : "text-outline"
-                    }`}
-                  >
-                    {article.status}
-                  </span>
-                  <span className="font-newsreader italic text-sm text-on-surface-variant opacity-70">
-                    {article.date}
-                  </span>
-                </div>
-                <h4 className="font-headline-h3 text-lg leading-snug group-hover:text-primary transition-colors">
-                  {article.title}
-                </h4>
-              </div>
-            ))}
+            {recentArticles.length === 0 ? (
+               <div className="py-8 text-center text-on-surface-variant font-newsreader italic">
+                 No articles published yet.
+               </div>
+            ) : (
+              recentArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/admin/articles/editor?id=${article.id}`}
+                  className="flex flex-col gap-2 py-5 border-b border-outline-variant/40 hover:pl-2 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={`font-label-sm text-[9px] uppercase tracking-widest ${
+                        article.status === "Published"
+                          ? "text-primary"
+                          : "text-outline"
+                      }`}
+                    >
+                      {article.status}
+                    </span>
+                    <span className="font-newsreader italic text-sm text-on-surface-variant opacity-70">
+                      {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <h4 className="font-headline-h3 text-lg leading-snug group-hover:text-primary transition-colors">
+                    {article.title}
+                  </h4>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </div>

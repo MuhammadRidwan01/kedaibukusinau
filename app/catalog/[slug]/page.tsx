@@ -5,13 +5,49 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cacheLife, cacheTag } from "next/cache";
+
+async function getBookData(slug: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(`book-${slug}`);
+
+  const book = await prisma.book.findUnique({
+    where: { slug },
+    include: {
+      author: true,
+      publisher: true,
+      category: true,
+      genres: { include: { genre: true } },
+    },
+  });
+
+  if (!book) return { book: null, relatedBooks: [] };
+
+  const relatedBooks = await prisma.book.findMany({
+    where: {
+      status: "Active",
+      categoryId: book.categoryId,
+      id: { not: book.id },
+    },
+    include: { author: true },
+    take: 4,
+  });
+
+  return { book, relatedBooks };
+}
+
+export async function generateStaticParams() {
+  const books = await prisma.book.findMany({
+    where: { status: "Active" },
+    select: { slug: true },
+  });
+  return books.map((book) => ({ slug: book.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const book = await prisma.book.findUnique({
-    where: { slug },
-    include: { author: true },
-  });
+  const { book } = await getBookData(slug);
 
   if (!book) return {};
 
@@ -45,30 +81,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  "use cache";
   const { slug } = await params;
+  cacheLife("hours");
+  cacheTag(`book-page-${slug}`);
 
-  const book = await prisma.book.findUnique({
-    where: { slug },
-    include: {
-      author: true,
-      publisher: true,
-      category: true,
-      genres: { include: { genre: true } },
-    },
-  });
+  const { book, relatedBooks } = await getBookData(slug);
 
   if (!book) return notFound();
-
-  // Related books: same category, excluding current
-  const relatedBooks = await prisma.book.findMany({
-    where: {
-      status: "Active",
-      categoryId: book.categoryId,
-      id: { not: book.id },
-    },
-    include: { author: true },
-    take: 4,
-  });
 
   const synopsisParagraphs = book.synopsis ? book.synopsis.split("\n").filter(Boolean) : [];
 
