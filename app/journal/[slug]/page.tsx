@@ -5,13 +5,46 @@ import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
 import Link from "next/link";
+import { cacheLife, cacheTag } from "next/cache";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+async function getArticleData(slug: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(`article-${slug}`);
+
   const article = await prisma.article.findUnique({
     where: { slug },
     include: { category: true },
   });
+
+  if (!article) return { article: null, relatedArticles: [], recommendedBooks: [] };
+
+  const relatedArticles = await prisma.article.findMany({
+    where: { status: "Published", id: { not: article.id } },
+    include: { category: true },
+    take: 2,
+  });
+
+  const recommendedBooks = await prisma.book.findMany({
+    where: { status: "Active" },
+    include: { author: true },
+    take: 4,
+  });
+
+  return { article, relatedArticles, recommendedBooks };
+}
+
+export async function generateStaticParams() {
+  const articles = await prisma.article.findMany({
+    where: { status: "Published" },
+    select: { slug: true },
+  });
+  return articles.map((article) => ({ slug: article.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const { article } = await getArticleData(slug);
 
   if (!article) return {};
 
@@ -45,28 +78,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  "use cache";
   const { slug } = await params;
-  const article = await prisma.article.findUnique({
-    where: { slug },
-    include: { category: true },
-  });
+  cacheLife("hours");
+  cacheTag(`article-page-${slug}`);
+
+  const { article, relatedArticles, recommendedBooks } = await getArticleData(slug);
 
   if (!article) return notFound();
 
-
-
-  // Related articles (mock or real)
-  const relatedArticles = await prisma.article.findMany({
-    where: { status: "Published", id: { not: article.id } },
-    include: { category: true },
-    take: 2,
-  });
-
-  const recommendedBooks = await prisma.book.findMany({
-    where: { status: "Active" },
-    include: { author: true },
-    take: 4,
-  });
   const dateStr = article.publishedAt?.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
