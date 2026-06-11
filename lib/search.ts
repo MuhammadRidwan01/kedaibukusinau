@@ -1,3 +1,4 @@
+import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { highlightText } from "@/lib/utils";
 
@@ -31,11 +32,18 @@ export interface SearchResult {
   searchMethod: "fulltext" | "fuzzy" | "prefix" | "none";
 }
 
+interface RankedBookResult extends BookResult {
+  matchTier: number;
+}
+
 /**
- * Triple-layer search:
- *   Layer 1: tsvector FTS with prefix matching (to_tsquery with :*)
- *   Layer 2: ILIKE prefix match (catches partial words like "nor" → "Normal")
- *   Layer 3: pg_trgm fuzzy (typo tolerance: "murakmi" → "Murakami")
+ * Combined search ranking:
+ *   Tier 1: tsvector FTS with prefix matching
+ *   Tier 2: ILIKE substring match
+ *   Tier 3: pg_trgm fuzzy match
+ *
+ * All tiers are queried together so the rendered books and total count always
+ * describe the same result set.
  */
 export async function searchBooks(
   query: string,
@@ -45,195 +53,230 @@ export async function searchBooks(
 ): Promise<SearchResult> {
   const offset = (page - 1) * limit;
   const filterConditions = buildFilterConditions(options);
-
-  // Sanitize query for to_tsquery prefix: split words, add :* to each
   const prefixTsQuery = query
     .trim()
     .split(/\s+/)
     .filter(Boolean)
-    .map((w) => w.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, ""))
+    .map((word) => word.replace(/[^a-zA-Z0-9\u00C0-\u024F]/g, ""))
     .filter(Boolean)
-    .map((w) => `${w}:*`)
+    .map((word) => `${word}:*`)
     .join(" & ");
-
-  // Layer 1: tsvector FTS with prefix matching
-  let books: BookResult[] = [];
-  let searchMethod: "fulltext" | "fuzzy" | "prefix" | "none" = "none";
-
-  if (prefixTsQuery) {
-    books = await prisma.$queryRawUnsafe(
-      `SELECT b."id", b."slug", b."title", b."price", b."originalPrice",
-              b."imageUrl", b."badge", b."synopsis",
-              a."name" AS "authorName",
-              ts_rank(b."searchVector", to_tsquery('english', $1)) AS rank,
-              ts_headline('english', b."title",
-                to_tsquery('english', $1),
-                'StartSel=<mark>, StopSel=</mark>, MaxFragments=0'
-              ) AS "highlightedTitle",
-              ts_headline('english', COALESCE(a."name", ''),
-                to_tsquery('english', $1),
-                'StartSel=<mark>, StopSel=</mark>, MaxFragments=0'
-              ) AS "highlightedAuthor",
-              ts_headline('english', COALESCE(b."synopsis", ''),
-                to_tsquery('english', $1),
-                'StartSel=<mark>, StopSel=</mark>, MaxFragments=1, MaxWords=30'
-              ) AS "highlightedSynopsis"
-       FROM "Book" b
-       LEFT JOIN "Author" a ON b."authorId" = a."id"
-       WHERE b."status" = 'Active'
-         AND b."searchVector" @@ to_tsquery('english', $1)
-         ${filterConditions}
-       ORDER BY rank DESC
-       LIMIT $2 OFFSET $3`,
-      prefixTsQuery,
-      limit,
-      offset
-    );
-
-    if (books.length > 0) searchMethod = "fulltext";
-  }
-
-  // Layer 2: ILIKE prefix match on title + author (catches partial words)
-  if (books.length === 0) {
-    const ilike = `%${query}%`;
-    books = await prisma.$queryRawUnsafe(
-      `SELECT b."id", b."slug", b."title", b."price", b."originalPrice",
-              b."imageUrl", b."badge", b."synopsis",
-              a."name" AS "authorName",
-              CASE
-                WHEN b."title" ILIKE $4 THEN 3
-                WHEN a."name" ILIKE $4 THEN 2
-                ELSE 1
-              END AS rank
-       FROM "Book" b
-       LEFT JOIN "Author" a ON b."authorId" = a."id"
-       WHERE b."status" = 'Active'
-         AND (
-           b."title" ILIKE $1
-           OR a."name" ILIKE $1
-           OR b."isbn" ILIKE $1
-         )
-         ${filterConditions}
-       ORDER BY rank DESC, b."title" ASC
-       LIMIT $2 OFFSET $3`,
-      ilike,
-      limit,
-      offset,
-      query + "%"
-    );
-
-    // Highlight via server-side regex
-    books = books.map((r) => ({
-      ...r,
-      highlightedTitle: highlightText(r.title, query),
-      highlightedAuthor: highlightText(r.authorName, query),
-      highlightedSynopsis: highlightText(r.synopsis, query),
-    }));
-
-    if (books.length > 0) searchMethod = "prefix";
-  }
-
-  // Layer 3: pg_trgm fuzzy fallback (typo tolerance)
-  if (books.length === 0) {
-    books = await prisma.$queryRawUnsafe(
-      `SELECT b."id", b."slug", b."title", b."price", b."originalPrice",
-              b."imageUrl", b."badge", b."synopsis",
-              a."name" AS "authorName",
-              GREATEST(
-                similarity(b."title", $1),
-                similarity(COALESCE(a."name", ''), $1),
-                similarity(COALESCE(b."isbn", ''), $1)
-              ) AS rank
-       FROM "Book" b
-       LEFT JOIN "Author" a ON b."authorId" = a."id"
-       WHERE b."status" = 'Active'
-         AND (
-           similarity(b."title", $1) > 0.15
-           OR similarity(a."name", $1) > 0.15
-           OR similarity(COALESCE(b."isbn", ''), $1) > 0.15
-         )
-         ${filterConditions}
-       ORDER BY rank DESC
-       LIMIT $2 OFFSET $3`,
-      query,
-      limit,
-      offset
-    );
-
-    // Highlight via server-side regex for pg_trgm results
-    books = books.map((r) => ({
-      ...r,
-      highlightedTitle: highlightText(r.title, query),
-      highlightedAuthor: highlightText(r.authorName, query),
-      highlightedSynopsis: highlightText(r.synopsis, query),
-    }));
-
-    searchMethod = books.length > 0 ? "fuzzy" : "none";
-  }
-
-  // Total count
   const ilike = `%${query}%`;
-  const countResult: { count: number }[] = await prisma.$queryRawUnsafe(
-    `SELECT COUNT(*)::int AS count FROM "Book" b
-     LEFT JOIN "Author" a ON b."authorId" = a."id"
-     WHERE b."status" = 'Active' AND (
-       ${prefixTsQuery ? `b."searchVector" @@ to_tsquery('english', $2) OR` : ""}
-       b."title" ILIKE $1
-       OR a."name" ILIKE $1
-       OR similarity(b."title", $3) > 0.15
-       OR similarity(COALESCE(a."name", ''), $3) > 0.15
-     ) ${filterConditions}`,
-    ilike,
-    prefixTsQuery || "",
-    query
+  const startsWith = `${query}%`;
+
+  const rawBooks = await prisma.$queryRaw<RankedBookResult[]>(Prisma.sql`
+    WITH candidates AS (
+      SELECT
+        b."id",
+        b."slug",
+        b."title",
+        b."price",
+        b."originalPrice",
+        b."imageUrl",
+        b."badge",
+        b."synopsis",
+        b."isbn",
+        b."searchVector",
+        a."name" AS "authorName",
+        COALESCE(
+          b."searchVector" @@ to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+          false
+        ) AS "fulltextMatch",
+        (
+          b."title" ILIKE ${ilike}
+          OR COALESCE(a."name", '') ILIKE ${ilike}
+          OR COALESCE(b."isbn", '') ILIKE ${ilike}
+        ) AS "substringMatch",
+        GREATEST(
+          similarity(b."title", ${query}),
+          similarity(COALESCE(a."name", ''), ${query}),
+          similarity(COALESCE(b."isbn", ''), ${query})
+        ) AS "fuzzyRank"
+      FROM "Book" b
+      LEFT JOIN "Author" a ON b."authorId" = a."id"
+      WHERE b."status" = 'Active'
+      ${filterConditions}
+    ),
+    ranked AS (
+      SELECT
+        "id",
+        "slug",
+        "title",
+        "price",
+        "originalPrice",
+        "imageUrl",
+        "badge",
+        "synopsis",
+        "authorName",
+        CASE
+          WHEN "fulltextMatch" THEN 1
+          WHEN "substringMatch" THEN 2
+          ELSE 3
+        END AS "matchTier",
+        CASE
+          WHEN "fulltextMatch" THEN
+            ts_rank("searchVector", to_tsquery('english', NULLIF(${prefixTsQuery}, '')))
+          WHEN "title" ILIKE ${startsWith} THEN 3
+          WHEN COALESCE("authorName", '') ILIKE ${startsWith} THEN 2
+          WHEN COALESCE("isbn", '') ILIKE ${startsWith} THEN 1
+          WHEN "substringMatch" THEN 0.5
+          ELSE "fuzzyRank"
+        END AS rank,
+        CASE
+          WHEN "fulltextMatch" THEN ts_headline(
+            'english',
+            "title",
+            to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+            'StartSel=<mark>, StopSel=</mark>, MaxFragments=0'
+          )
+          ELSE "title"
+        END AS "highlightedTitle",
+        CASE
+          WHEN "fulltextMatch" THEN ts_headline(
+            'english',
+            COALESCE("authorName", ''),
+            to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+            'StartSel=<mark>, StopSel=</mark>, MaxFragments=0'
+          )
+          ELSE COALESCE("authorName", '')
+        END AS "highlightedAuthor",
+        CASE
+          WHEN "fulltextMatch" THEN ts_headline(
+            'english',
+            COALESCE("synopsis", ''),
+            to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+            'StartSel=<mark>, StopSel=</mark>, MaxFragments=1, MaxWords=30'
+          )
+          ELSE COALESCE("synopsis", '')
+        END AS "highlightedSynopsis",
+        "fuzzyRank"
+      FROM candidates
+      WHERE "fulltextMatch" OR "substringMatch" OR "fuzzyRank" > 0.15
+    )
+    SELECT
+      "id",
+      "slug",
+      "title",
+      "price",
+      "originalPrice",
+      "imageUrl",
+      "badge",
+      "synopsis",
+      "authorName",
+      rank,
+      "matchTier",
+      "highlightedTitle",
+      "highlightedAuthor",
+      "highlightedSynopsis"
+    FROM ranked
+    ORDER BY "matchTier" ASC, rank DESC, "fuzzyRank" DESC, "title" ASC
+    LIMIT ${limit} OFFSET ${offset}
+  `);
+
+  const countResult = await prisma.$queryRaw<
+    { count: number; bestMatchTier: number | null }[]
+  >(Prisma.sql`
+    SELECT
+      COUNT(*)::int AS count,
+      MIN(
+        CASE
+          WHEN COALESCE(
+            b."searchVector" @@ to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+            false
+          ) THEN 1
+          WHEN (
+            b."title" ILIKE ${ilike}
+            OR COALESCE(a."name", '') ILIKE ${ilike}
+            OR COALESCE(b."isbn", '') ILIKE ${ilike}
+          ) THEN 2
+          ELSE 3
+        END
+      )::int AS "bestMatchTier"
+    FROM "Book" b
+    LEFT JOIN "Author" a ON b."authorId" = a."id"
+    WHERE b."status" = 'Active'
+      AND (
+        COALESCE(
+          b."searchVector" @@ to_tsquery('english', NULLIF(${prefixTsQuery}, '')),
+          false
+        )
+        OR b."title" ILIKE ${ilike}
+        OR COALESCE(a."name", '') ILIKE ${ilike}
+        OR COALESCE(b."isbn", '') ILIKE ${ilike}
+        OR similarity(b."title", ${query}) > 0.15
+        OR similarity(COALESCE(a."name", ''), ${query}) > 0.15
+        OR similarity(COALESCE(b."isbn", ''), ${query}) > 0.15
+      )
+      ${filterConditions}
+  `);
+
+  const books = rawBooks.map(({ matchTier, ...book }) =>
+    matchTier === 1
+      ? book
+      : {
+          ...book,
+          highlightedTitle: highlightText(book.title, query),
+          highlightedAuthor: highlightText(book.authorName, query),
+          highlightedSynopsis: highlightText(book.synopsis, query),
+        }
   );
+  const bestMatchTier = countResult[0]?.bestMatchTier;
 
   return {
     books,
     total: countResult[0]?.count ?? 0,
-    searchMethod,
+    searchMethod:
+      bestMatchTier === 1
+        ? "fulltext"
+        : bestMatchTier === 2
+          ? "prefix"
+          : bestMatchTier === 3
+            ? "fuzzy"
+            : "none",
   };
 }
 
 /**
  * Get top suggestion for Tab-to-complete ghost text.
- * Uses prefix ILIKE with trigram index — ~0.5ms.
+ * Uses prefix ILIKE with trigram index.
  */
-export async function getSuggestion(
-  query: string
-): Promise<string | null> {
+export async function getSuggestion(query: string): Promise<string | null> {
   if (query.length < 2) return null;
 
-  const results: { title: string }[] = await prisma.$queryRawUnsafe(
-    `SELECT "title" FROM "Book"
-     WHERE "status" = 'Active'
-       AND "title" ILIKE $1
-     ORDER BY similarity("title", $2) DESC
-     LIMIT 1`,
-    query + "%",
-    query
-  );
+  const results = await prisma.$queryRaw<{ title: string }[]>(Prisma.sql`
+    SELECT "title"
+    FROM "Book"
+    WHERE "status" = 'Active'
+      AND "title" ILIKE ${`${query}%`}
+    ORDER BY similarity("title", ${query}) DESC
+    LIMIT 1
+  `);
 
   return results[0]?.title ?? null;
 }
 
-function buildFilterConditions(options: SearchOptions): string {
-  const conditions: string[] = [];
+function buildFilterConditions(options: SearchOptions): Prisma.Sql {
+  const conditions: Prisma.Sql[] = [];
 
   if (options.category) {
-    conditions.push(
-      `AND b."categoryId" = (SELECT id FROM "Category" WHERE slug = '${options.category}')`
-    );
+    conditions.push(Prisma.sql`
+      b."categoryId" = (SELECT id FROM "Category" WHERE slug = ${options.category})
+    `);
   }
   if (options.minPrice !== undefined) {
-    conditions.push(`AND b."price" >= ${Number(options.minPrice)}`);
+    conditions.push(Prisma.sql`b."price" >= ${options.minPrice}`);
   }
   if (options.maxPrice !== undefined) {
-    conditions.push(`AND b."price" <= ${Number(options.maxPrice)}`);
+    conditions.push(Prisma.sql`b."price" <= ${options.maxPrice}`);
   }
   if (options.badge) {
-    conditions.push(`AND b."badge" = '${options.badge}'`);
+    conditions.push(Prisma.sql`b."badge" = ${options.badge}`);
+  }
+  if (options.authorSlug) {
+    conditions.push(Prisma.sql`a."slug" = ${options.authorSlug}`);
   }
 
-  return conditions.join(" ");
+  return conditions.length > 0
+    ? Prisma.sql`AND ${Prisma.join(conditions, " AND ")}`
+    : Prisma.empty;
 }

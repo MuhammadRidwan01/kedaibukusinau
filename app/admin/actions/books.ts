@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { revalidatePath, updateTag } from "next/cache";
+import { auth } from "@/auth";
 
 export async function getBooks(params?: { q?: string; categoryId?: number; status?: string; page?: number; limit?: number }) {
   try {
@@ -40,6 +41,9 @@ export async function getBooks(params?: { q?: string; categoryId?: number; statu
 }
 
 export async function createBook(data: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     let authorId: number | undefined;
     if (data.authorName) {
@@ -124,6 +128,9 @@ export async function createBook(data: any) {
 }
 
 export async function updateBook(id: number, data: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     let authorId: number | undefined;
     if (data.authorName) {
@@ -214,6 +221,9 @@ export async function updateBook(id: number, data: any) {
 }
 
 export async function deleteBook(id: number) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     const book = await prisma.book.findUnique({ where: { id } });
     await prisma.book.delete({ where: { id } });

@@ -32,8 +32,8 @@ export default async function ContactPage() {
 
         {/* Heading */}
         <div className="mb-16 border-b border-outline-variant/50 pb-12">
-          <h1 className="font-display-lg text-6xl md:text-7xl text-on-surface tracking-tight mb-4">Get in Touch.</h1>
-          <p className="font-newsreader italic text-xl md:text-2xl text-on-surface-variant max-w-2xl">
+          <h1 className="font-display-lg text-4xl sm:text-6xl md:text-7xl text-on-surface tracking-tight mb-4">Get in Touch.</h1>
+          <p className="font-newsreader italic text-lg sm:text-xl md:text-2xl text-on-surface-variant max-w-2xl">
             We're always open to conversation. Send us a message or visit us in person.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default async function ContactPage() {
           </div>
 
           {/* Form (Right Column) */}
-          <div className="lg:col-span-8 bg-surface border border-outline-variant/50 p-8 md:p-12 shadow-sm relative">
+          <div className="lg:col-span-8 bg-surface border border-outline-variant/50 p-5 sm:p-8 md:p-12 shadow-sm relative">
             {/* Decorative Corner Lines */}
             <div className="absolute top-4 left-4 w-4 h-[1px] bg-outline-variant"></div>
             <div className="absolute top-4 left-4 w-[1px] h-4 bg-outline-variant"></div>

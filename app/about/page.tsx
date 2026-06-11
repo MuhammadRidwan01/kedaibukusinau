@@ -43,8 +43,8 @@ export default async function AboutPage() {
         {/* Header */}
         <div className="text-center max-w-4xl mx-auto mb-20">
           <span className="font-label-sm uppercase tracking-[0.2em] text-xs text-on-surface-variant mb-6 block">Our Story</span>
-          <h1 className="font-display-lg text-6xl md:text-8xl text-on-surface tracking-tight mb-8">{storeName}</h1>
-          <p className="font-newsreader italic text-2xl md:text-3xl text-on-surface-variant leading-relaxed">
+          <h1 className="font-display-lg text-4xl sm:text-6xl md:text-8xl text-on-surface tracking-tight mb-8">{storeName}</h1>
+          <p className="font-newsreader italic text-xl sm:text-2xl md:text-3xl text-on-surface-variant leading-relaxed">
             {description}
           </p>
         </div>
@@ -66,7 +66,7 @@ export default async function AboutPage() {
               const restOfText = para.slice(1);
               return (
                 <p key={idx}>
-                  <span className="float-left text-7xl leading-none font-newsreader text-primary mr-4 mt-2">
+                  <span className="float-left text-5xl sm:text-7xl leading-none font-newsreader text-primary mr-3 sm:mr-4 mt-1 sm:mt-2">
                     {firstLetter}
                   </span>
                   {restOfText}
@@ -83,7 +83,7 @@ export default async function AboutPage() {
           {/* Vision */}
           <div className="flex flex-col">
             <span className="font-label-sm uppercase tracking-[0.2em] text-primary mb-6">The Vision</span>
-            <h2 className="font-headline-h2 text-4xl mb-6 text-on-surface">A Better Way to Find Books</h2>
+            <h2 className="font-headline-h2 text-3xl sm:text-4xl mb-6 text-on-surface">A Better Way to Find Books</h2>
             <p className="font-body-md text-on-surface-variant leading-relaxed text-lg">
               {vision}
             </p>
@@ -107,7 +107,7 @@ export default async function AboutPage() {
 
         {/* CTA to Contact */}
         <div className="text-center mb-24 max-w-2xl mx-auto">
-          <h2 className="font-display-lg text-5xl md:text-6xl text-on-surface mb-6">Visit the Store</h2>
+          <h2 className="font-display-lg text-4xl sm:text-5xl md:text-6xl text-on-surface mb-6">Visit the Store</h2>
           <p className="font-body-md text-on-surface-variant mb-10 text-lg">
             Looking for a specific book or want to ask us a question? Reach out to us below.
           </p>

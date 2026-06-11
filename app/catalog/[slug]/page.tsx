@@ -113,10 +113,10 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
 
           {/* Left: Floating Book Cover */}
           <div className="md:col-span-5 flex justify-center">
-            <div className="relative w-[65%] md:w-[70%]">
+            <div className="relative w-[80%] sm:w-[65%] md:w-[70%]">
               {/* Deco lines */}
-              <div className="absolute -top-6 -left-6 w-16 h-16 border-t-[2px] border-l-[2px] border-outline-variant transition-all duration-700 z-0"></div>
-              <div className="absolute -bottom-6 -right-6 w-16 h-16 border-b-[2px] border-r-[2px] border-outline-variant transition-all duration-700 z-0"></div>
+              <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 w-10 sm:w-16 h-10 sm:h-16 border-t-[2px] border-l-[2px] border-outline-variant transition-all duration-700 z-0"></div>
+              <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 w-10 sm:w-16 h-10 sm:h-16 border-b-[2px] border-r-[2px] border-outline-variant transition-all duration-700 z-0"></div>
 
               <div className="relative z-10 shadow-2xl">
                 {book.badge && (
@@ -150,7 +150,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
             {/* Title & Action Block */}
             <div className="flex flex-col gap-6 mb-10 border-b border-outline-variant/50 pb-10">
               <div className="flex flex-col gap-2">
-                <h1 className="font-display-lg text-5xl md:text-6xl tracking-tight leading-[1.1] mb-2 text-on-surface">
+                <h1 className="font-display-lg text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.1] mb-2 text-on-surface">
                   {book.title}
                 </h1>
                 <span className="font-newsreader italic text-2xl text-on-surface-variant">{book.author?.name || "Unknown"}</span>

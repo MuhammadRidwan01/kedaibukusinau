@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { HoverPrefetch } from "@/components/common/HoverPrefetch";
 import "./globals.css";
 
 const inter = Inter({
@@ -31,20 +32,11 @@ export const metadata: Metadata = {
     siteName: "Kedai Sinau",
     title: "Kedai Sinau | Curated Digital Bookstore",
     description: "Discover our curated collection of titles. Books that challenge the mind and soothe the soul.",
-    images: [
-      {
-        url: "/og-image.png", // User should ensure this file exists in /public
-        width: 1200,
-        height: 630,
-        alt: "Kedai Sinau Bookstore",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Kedai Sinau | Curated Digital Bookstore",
     description: "Discover our curated collection of titles.",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -52,7 +44,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { HoverPrefetch } from "@/components/common/HoverPrefetch";
 
 export default function RootLayout({
   children,
@@ -61,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${inter.variable} ${newsreader.variable} h-full antialiased light`}
     >
       <head>

@@ -80,7 +80,7 @@ function CatalogSkeleton() {
           <div className="h-4 bg-surface-variant/30 w-32"></div>
           <div className="h-10 bg-surface-variant/30 w-48 border border-outline-variant/30"></div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-12 sm:gap-y-20">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="flex flex-col gap-4">
               <div className="aspect-[2/3] bg-surface-variant/30 w-full"></div>
@@ -321,7 +321,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<{ [key: 
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-20 gap-x-8">
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-12 sm:gap-y-20">
               {books.map((book, index) => (
                 <BookCard
                   key={book.id}
@@ -341,7 +341,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<{ [key: 
           {/* Editorial Pagination */}
           {totalPages > 1 && (
             <div className="mt-24 pt-12 border-t border-outline-variant/30 flex justify-center">
-              <ul className="flex items-center gap-6">
+              <ul className="flex items-center gap-3 sm:gap-6">
                 {/* Prev */}
                 <li>
                   {page > 1 ? (
@@ -449,7 +449,7 @@ export default function CatalogPage({
 
           <div className="border-t-2 border-outline pt-8 pb-6 border-b border-outline-variant/30 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="font-display-lg text-6xl mb-4 text-on-surface tracking-tight">
+              <h1 className="font-display-lg text-4xl sm:text-5xl md:text-6xl mb-4 text-on-surface tracking-tight">
                 All Books
               </h1>
               <p className="font-newsreader italic text-xl text-on-surface-variant max-w-xl">

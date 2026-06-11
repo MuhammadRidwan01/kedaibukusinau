@@ -8,7 +8,7 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="text-on-surface antialiased min-h-screen flex bg-background">
+    <div className="text-on-surface antialiased h-screen flex bg-background overflow-hidden">
       <div className="noise-overlay"></div>
       <Toaster position="top-right" richColors closeButton />
       <AdminSidebar />

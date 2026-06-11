@@ -25,37 +25,33 @@ interface SearchResponse {
   searchMethod: "fulltext" | "fuzzy" | "prefix" | "none";
 }
 
+const SEARCH_DEBOUNCE_MS = 300;
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
 export function MobileSearchModal({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [trendingBooks, setTrendingBooks] = useState<any[]>([]);
 
   useEffect(() => {
-    // Slight delay to allow animation to finish before focusing
-    const focusTimer = setTimeout(() => {
+    // Slight delay to allow animation to finish before initializing the modal.
+    const initializationTimer = setTimeout(() => {
       inputRef.current?.focus();
+
+      const saved = localStorage.getItem("recentSearches");
+      if (saved) {
+        try {
+          setRecentSearches(JSON.parse(saved));
+        } catch {}
+      }
     }, 100);
 
-    const saved = localStorage.getItem("recentSearches");
-    if (saved) {
-      try {
-        setRecentSearches(JSON.parse(saved));
-      } catch (e) {}
-    }
-
-    fetch("/api/books?limit=4")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.books) {
-          setTrendingBooks(data.books);
-        }
-      })
-      .catch(() => {});
-      
-    return () => clearTimeout(focusTimer);
+    return () => clearTimeout(initializationTimer);
   }, []);
 
   const saveSearchClick = (q: string) => {
@@ -67,23 +63,47 @@ export function MobileSearchModal({ onClose }: { onClose: () => void }) {
 
   // Search results — debounced 300ms
   useEffect(() => {
-    if (query.length < 2) {
-      const clearTimer = setTimeout(() => setResults(null), 0);
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      const clearTimer = setTimeout(() => {
+        setResults(null);
+        setIsLoading(false);
+      }, 0);
       return () => clearTimeout(clearTimer);
     }
-    setIsLoading(true);
+
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
+      let isFetching = true;
+      const loadingTimer = setTimeout(() => {
+        if (isFetching) setIsLoading(true);
+      }, 1000);
+
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=10`);
+        const res = await fetch(
+          `/api/search?q=${encodeURIComponent(normalizedQuery)}&limit=10`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) throw new Error("Search request failed");
+
         const data: SearchResponse = await res.json();
         setResults(data);
-      } catch {
+      } catch (error) {
+        if (isAbortError(error)) return;
         setResults(null);
       } finally {
-        setIsLoading(false);
+        isFetching = false;
+        clearTimeout(loadingTimer);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
-    }, 300);
-    return () => clearTimeout(timer);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   return (
@@ -110,12 +130,12 @@ export function MobileSearchModal({ onClose }: { onClose: () => void }) {
         </div>
         
         <div className="relative flex items-center w-full">
-          <span className="material-symbols-outlined text-[24px] text-on-surface/40 absolute left-0 font-light">
+          <span className="material-symbols-outlined text-[24px] text-on-surface/60 absolute left-0 font-light">
             search
           </span>
           <input
             ref={inputRef}
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-0 font-newsreader italic text-3xl md:text-4xl text-on-surface placeholder-on-surface/20 pl-10 pr-10 py-2 caret-primary"
+            className="w-full bg-transparent border-none focus:outline-none focus:ring-0 font-newsreader italic text-3xl md:text-4xl text-on-surface placeholder-on-surface/45 pl-10 pr-10 py-2 caret-primary"
             placeholder="Title, author, keyword..."
             type="text"
             value={query}
@@ -130,7 +150,7 @@ export function MobileSearchModal({ onClose }: { onClose: () => void }) {
             <button 
               onClick={() => setQuery("")} 
               aria-label="Clear search" 
-              className="absolute right-0 p-2 text-on-surface/40 hover:text-primary transition-colors focus:outline-none"
+              className="absolute right-0 p-2 text-on-surface/60 hover:text-primary transition-colors focus:outline-none"
             >
               <span className="material-symbols-outlined text-[20px] font-light">backspace</span>
             </button>
@@ -155,7 +175,9 @@ export function MobileSearchModal({ onClose }: { onClose: () => void }) {
                  <div className="flex items-center gap-4 mb-8">
                    <span className="h-px bg-outline-variant/50 flex-1"></span>
                    <span className="font-label-sm uppercase tracking-[0.2em] text-[9px] text-on-surface-variant/60">
-                     {results?.total || 0} Results Found
+                     {results && results.books.length < results.total
+                       ? `Showing ${results.books.length} of ${results.total} Results`
+                       : `${results?.total || 0} Results Found`}
                    </span>
                    <span className="h-px bg-outline-variant/50 flex-1"></span>
                  </div>
@@ -241,60 +263,6 @@ export function MobileSearchModal({ onClose }: { onClose: () => void }) {
               </section>
             )}
 
-            {/* Trending Now / Editorial Layout */}
-            {trendingBooks.length > 0 && (
-              <section className="px-6 pb-16 pt-4">
-                <div className="flex items-center gap-4 mb-8">
-                  <span className="font-label-sm text-[9px] uppercase tracking-[0.2em] text-on-surface-variant/60">
-                    Curated & Trending
-                  </span>
-                  <div className="h-px bg-outline-variant/40 flex-1"></div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-x-6 gap-y-10">
-                  {trendingBooks.map((book, idx) => (
-                    <Link
-                      key={book.id}
-                      href={`/catalog/${book.slug}`}
-                      className="group cursor-pointer block"
-                      onClick={() => {
-                        saveSearchClick(book.title);
-                        onClose();
-                      }}
-                    >
-                      <article className="flex flex-col h-full">
-                        <div className="relative w-full mb-4">
-                          {/* Number badge for editorial feel */}
-                          <div className="absolute -left-2 -top-2 w-6 h-6 bg-primary text-white flex items-center justify-center font-label-sm text-[9px] z-10 shadow-md">
-                            {String(idx + 1).padStart(2, '0')}
-                          </div>
-                          
-                          <div className="aspect-[2/3] relative shadow-[0_8px_24px_rgb(0,0,0,0.08)] overflow-hidden editorial-inner group-hover:shadow-[0_12px_32px_rgb(0,0,0,0.15)] transition-shadow duration-500">
-                            <img 
-                              alt={book.title} 
-                              className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 filter group-hover:contrast-110" 
-                              src={book.imageUrl || ""} 
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                          </div>
-                        </div>
-                        <h3 className="font-headline-h3 text-lg md:text-xl text-on-surface leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                          {book.title}
-                        </h3>
-                        <p className="font-newsreader italic text-sm text-on-surface-variant mt-2 mb-3">
-                          {book.author?.name || "Unknown Author"}
-                        </p>
-                        <div className="mt-auto pt-2 border-t border-outline-variant/30 flex items-center justify-between">
-                           <span className="font-label-sm text-[10px] tracking-widest text-on-surface">
-                             IDR {book.price.toLocaleString("id-ID")}
-                           </span>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
           </div>
         )}
       </div>

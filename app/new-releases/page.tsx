@@ -100,7 +100,7 @@ export default function NewReleasesPage() {
         {/* Header Block */}
         <div className="flex flex-col items-center text-center mb-12">
           <span className="font-label-sm uppercase tracking-[0.2em] text-xs text-on-surface-variant mb-4">Fresh off the press</span>
-          <h1 className="font-display-lg text-6xl md:text-7xl text-on-surface tracking-tight mb-4">New Arrivals</h1>
+          <h1 className="font-display-lg text-4xl sm:text-6xl md:text-7xl text-on-surface tracking-tight mb-4">New Arrivals</h1>
           <p className="font-newsreader italic text-xl text-on-surface-variant max-w-xl">
             Browse the newest titles in our store. Handpicked books to inspire your next reading journey.
           </p>
@@ -129,7 +129,7 @@ export default function NewReleasesPage() {
         </div>
 
         {/* The Grid (Gallery Layout) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-20 gap-x-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 sm:gap-y-20 gap-x-4 sm:gap-x-8">
           {books.map((book) => (
             <BookCard
               key={book.id}

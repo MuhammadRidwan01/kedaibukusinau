@@ -12,11 +12,12 @@ async function getHomeData() {
   cacheTag("home-data");
   return Promise.all([
     prisma.book.findMany({ where: { status: "Active" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 8 }),
-    prisma.book.findFirst({ where: { status: "Active", isFeaturedBestseller: true }, include: { author: true, category: true } }),
+    prisma.book.findFirst({ where: { status: "Active", isFeaturedBestseller: true }, include: { author: true, category: true }, orderBy: { updatedAt: "desc" } }),
     prisma.book.findMany({ where: { status: "Active", badge: "New" }, include: { author: true }, orderBy: { createdAt: "desc" }, take: 4 }),
     prisma.genre.findMany({ orderBy: { name: "asc" }, take: 10 }),
     prisma.testimonial.findMany({ orderBy: { order: "asc" }, take: 3 }),
     prisma.article.findMany({ where: { status: "Published" }, include: { category: true }, orderBy: { publishedAt: "desc" }, take: 3 }),
+    prisma.banner.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
   ]);
 }
 
@@ -24,11 +25,11 @@ export default async function Home() {
   "use cache";
   cacheLife("hours");
   cacheTag("home-page");
-  const [curatedBooks, bestseller, newArrivals, genres, testimonials, articles] = await getHomeData();
+  const [curatedBooks, bestseller, newArrivals, genres, testimonials, articles, banners] = await getHomeData();
   return (
     <>
       <PublicNavbar />
-      <HeroCarousel />
+      <HeroCarousel slides={banners.map((banner) => ({ src: banner.imageUrl, alt: banner.altText || "Kedai Sinau banner" }))} />
 
       <section className="max-w-[1200px] mx-auto w-full px-6 pt-16 pb-20">
         <div className="flex flex-col gap-12">
@@ -43,7 +44,7 @@ export default async function Home() {
               View Catalog
             </Link>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-12">
             {curatedBooks.map((book, index) => (
               <BookCard
                 key={book.id}
@@ -62,7 +63,7 @@ export default async function Home() {
           <div className="flex justify-center pt-4">
             <Link
               href="/catalog"
-              className="inline-flex items-center gap-4 border border-outline text-on-surface font-newsreader uppercase tracking-widest text-sm px-12 py-5 hover:bg-on-surface hover:text-white hover:border-on-surface transition-all duration-500 group"
+              className="inline-flex items-center gap-4 border border-outline text-on-surface font-newsreader uppercase tracking-widest text-sm px-8 sm:px-12 py-4 sm:py-5 hover:bg-on-surface hover:text-white hover:border-on-surface transition-all duration-500 group"
             >
               Explore Full Collection
               <span className="material-symbols-outlined font-light text-base transform group-hover:translate-x-2 transition-transform duration-500">
@@ -74,9 +75,9 @@ export default async function Home() {
       </section>
 
       {/* Avant-Garde Bestseller */}
-      <section className="w-full bg-[#1E3A5F] text-[#FAF3E0] py-32 md:py-40 relative overflow-hidden">
+      <section className="w-full bg-[#1E3A5F] text-[#FAF3E0] py-20 sm:py-28 md:py-40 relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none opacity-[0.03] z-0">
-          <h2 className="font-headline-h1 text-[15rem] md:text-[25rem] whitespace-nowrap leading-none tracking-tighter">
+          <h2 className="font-headline-h1 text-[8rem] sm:text-[12rem] md:text-[25rem] whitespace-nowrap leading-none tracking-tighter">
             BESTSELLER
           </h2>
         </div>
@@ -84,9 +85,9 @@ export default async function Home() {
         <div className="max-w-[1200px] mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8 items-center">
             <div className="md:col-span-5 flex justify-center mt-8 md:mt-0">
-              <div className="relative group cursor-pointer w-[85%] md:w-[80%]">
-                <div className="absolute -top-10 -left-10 w-20 h-20 border-t-[4px] border-l-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-top-14 group-hover:-left-14 z-0"></div>
-                <div className="absolute -bottom-10 -right-10 w-20 h-20 border-b-[4px] border-r-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-bottom-14 group-hover:-right-14 z-0"></div>
+              <div className="relative group cursor-pointer w-[85%] md:w-[80%] overflow-hidden">
+                <div className="absolute -top-6 -left-6 sm:-top-10 sm:-left-10 w-14 sm:w-20 h-14 sm:h-20 border-t-[3px] sm:border-t-[4px] border-l-[3px] sm:border-l-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-top-14 group-hover:-left-14 z-0"></div>
+                <div className="absolute -bottom-6 -right-6 sm:-bottom-10 sm:-right-10 w-14 sm:w-20 h-14 sm:h-20 border-b-[3px] sm:border-b-[4px] border-r-[3px] sm:border-r-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-bottom-14 group-hover:-right-14 z-0"></div>
 
                 <div className="relative z-10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] transform transition-transform duration-700 group-hover:scale-[1.03]">
                   <img
@@ -109,12 +110,14 @@ export default async function Home() {
                   Bestseller of the Month
                 </span>
                 <span className="font-newsreader uppercase tracking-[0.3em] text-[10px] text-primary">
-                  05 . 24
+                  {bestseller?.updatedAt
+                    ? `${String(new Date(bestseller.updatedAt).getMonth() + 1).padStart(2, "0")} . ${String(new Date(bestseller.updatedAt).getFullYear()).slice(-2)}`
+                    : ""}
                 </span>
               </div>
 
               <div className="flex flex-col gap-2 mb-10">
-                <h3 className="font-headline-h1 text-5xl md:text-7xl tracking-tight leading-[1.1] mb-2">
+                <h3 className="font-headline-h1 text-3xl sm:text-5xl md:text-7xl tracking-tight leading-[1.1] mb-2">
                   {bestseller?.title || "Featured Bestseller"}
                 </h3>
                 <span className="font-newsreader italic text-2xl text-[#FAF3E0]/50">
@@ -187,7 +190,7 @@ export default async function Home() {
             <span className="font-newsreader uppercase tracking-[0.2em] text-xs text-on-surface-variant">
               Fresh off the press
             </span>
-            <h2 className="font-display-lg text-6xl md:text-7xl text-on-surface leading-none tracking-tight">
+            <h2 className="font-display-lg text-4xl sm:text-6xl md:text-7xl text-on-surface leading-none tracking-tight">
               New
               <br />
               <i className="text-on-surface-variant font-light">Arrivals</i>
@@ -308,7 +311,7 @@ export default async function Home() {
             </h2>
             <div className="w-12 h-[1px] bg-primary mt-2"></div>
           </div>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 max-w-[800px] mx-auto">
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-8 gap-y-4 max-w-[800px] mx-auto">
             {genres.map((genre) => (
               <Link key={genre.id} href={`/catalog?genre=${genre.slug}`} className="genre-chip">
                 {genre.name}

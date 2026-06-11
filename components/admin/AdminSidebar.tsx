@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -10,6 +11,7 @@ export function AdminSidebar() {
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { href: "/admin/books", label: "Manage Books", icon: "book" },
     { href: "/admin/articles", label: "Manage Articles", icon: "article" },
+    { href: "/admin/metadata", label: "Manage Metadata", icon: "label" },
     { href: "/admin/admins", label: "Manage Admins", icon: "group" },
     { href: "/admin/settings", label: "Store Settings", icon: "settings" },
   ];
@@ -44,13 +46,14 @@ export function AdminSidebar() {
 
       {/* Logout */}
       <div className="p-6 border-t border-outline-variant/60">
-        <Link
-          href="/admin/login"
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/admin/login" })}
           className="flex items-center gap-4 font-label-sm uppercase tracking-widest text-primary hover:opacity-70 transition-opacity px-3"
         >
           <span className="material-symbols-outlined text-[18px]">logout</span>
           Logout
-        </Link>
+        </button>
       </div>
     </aside>
   );

@@ -25,6 +25,13 @@ interface SearchResponse {
   searchMethod: "fulltext" | "fuzzy" | "prefix" | "none";
 }
 
+const SUGGESTION_DEBOUNCE_MS = 150;
+const SEARCH_DEBOUNCE_MS = 300;
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
 export function SearchResults({ onNavigate, inline, autoFocus }: { onNavigate?: () => void; inline?: boolean; autoFocus?: boolean } = {}) {
   const [query, setQuery] = useState("");
   const [suggestion, setSuggestion] = useState<string | null>(null);
@@ -43,44 +50,81 @@ export function SearchResults({ onNavigate, inline, autoFocus }: { onNavigate?: 
 
   // Tab suggestion — debounced 150ms
   useEffect(() => {
-    if (query.length < 2) {
-      setSuggestion(null);
-      return;
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      const clearTimer = setTimeout(() => setSuggestion(null), 0);
+      return () => clearTimeout(clearTimer);
     }
+
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`);
+        const res = await fetch(
+          `/api/search/suggest?q=${encodeURIComponent(normalizedQuery)}`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) throw new Error("Suggestion request failed");
+
         const data = await res.json();
         setSuggestion(data.suggestion);
-      } catch {
+      } catch (error) {
+        if (isAbortError(error)) return;
         setSuggestion(null);
       }
-    }, 150);
-    return () => clearTimeout(timer);
+    }, SUGGESTION_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   // Search results — debounced 300ms
   useEffect(() => {
-    if (query.length < 2) {
-      setResults(null);
-      setIsOpen(false);
-      return;
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      const clearTimer = setTimeout(() => {
+        setResults(null);
+        setIsOpen(false);
+        setIsLoading(false);
+      }, 0);
+      return () => clearTimeout(clearTimer);
     }
-    setIsLoading(true);
+
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
+      let isFetching = true;
+      const loadingTimer = setTimeout(() => {
+        if (isFetching) setIsLoading(true);
+      }, 1000);
+
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=6`);
+        const res = await fetch(
+          `/api/search?q=${encodeURIComponent(normalizedQuery)}&limit=6`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) throw new Error("Search request failed");
+
         const data: SearchResponse = await res.json();
         setResults(data);
         setIsOpen(true);
         setActiveIndex(-1);
-      } catch {
+      } catch (error) {
+        if (isAbortError(error)) return;
         setResults(null);
       } finally {
-        setIsLoading(false);
+        isFetching = false;
+        clearTimeout(loadingTimer);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
-    }, 300);
-    return () => clearTimeout(timer);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   // Click outside to close
@@ -179,7 +223,9 @@ export function SearchResults({ onNavigate, inline, autoFocus }: { onNavigate?: 
           {/* Header */}
           <div className="px-6 py-4 border-b border-outline-variant/30">
             <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-on-surface-variant">
-              Search Results ({results.total})
+              {results.books.length < results.total
+                ? `Showing ${results.books.length} of ${results.total} Results`
+                : `Search Results (${results.total})`}
             </span>
             {results.searchMethod === "fuzzy" && (
               <span className="ml-3 font-label-sm text-[9px] uppercase tracking-widest text-primary/70">

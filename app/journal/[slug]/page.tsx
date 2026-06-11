@@ -96,10 +96,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
   const readTimeStr = article.readTime ? `${article.readTime} min read` : "5 min read";
 
   return (
-    <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text theme-dark">
+    <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text">
       <PublicNavbar theme="dark" />
       
-      <main className="flex-grow w-full max-w-[1000px] mx-auto px-6 py-12">
+      <main className="flex-grow w-full max-w-[1000px] mx-auto px-6 py-12 theme-dark">
         
         {/* Breadcrumb */}
         <div className="mb-16">
@@ -122,7 +122,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               <span>{readTimeStr}</span>
             </div>
           </div>
-          <h1 className="font-display-lg text-5xl md:text-6xl lg:text-7xl text-theme-dark-text tracking-tight leading-[1.1]">
+          <h1 className="font-display-lg text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-theme-dark-text tracking-tight leading-[1.1]">
             {article.title}
           </h1>
         </div>
@@ -134,7 +134,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Article Content */}
         <div 
-          className="max-w-[700px] mx-auto prose prose-invert prose-stone prose-lg prose-p:font-body-md prose-p:text-theme-dark-text/80 prose-p:leading-loose prose-p:my-8 prose-headings:font-headline-h2 prose-headings:text-theme-dark-text prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-blockquote:border-l-[3px] prose-blockquote:border-primary prose-blockquote:pl-8 prose-blockquote:font-newsreader prose-blockquote:italic prose-blockquote:text-2xl md:prose-blockquote:text-3xl prose-blockquote:text-theme-dark-text prose-blockquote:my-16 prose-blockquote:leading-relaxed prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-4 prose-ul:marker:text-primary prose-li:text-theme-dark-text/80 prose-img:w-full prose-img:border prose-img:border-theme-dark-text/10 prose-img:shadow-lg prose-img:grayscale prose-img:my-16 prose-a:text-primary hover:prose-a:text-primary/80 prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:font-newsreader prose-p:first-of-type:first-letter:text-theme-dark-text prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-4 prose-p:first-of-type:first-letter:mt-2 prose-p:first-of-type:first-letter:leading-none"
+          className="max-w-[700px] mx-auto prose prose-invert prose-stone prose-lg prose-p:font-body-md prose-p:text-theme-dark-text/80 prose-p:leading-loose prose-p:my-8 prose-headings:font-headline-h2 prose-headings:text-theme-dark-text prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-blockquote:border-l-[3px] prose-blockquote:border-primary prose-blockquote:pl-8 prose-blockquote:font-newsreader prose-blockquote:italic prose-blockquote:text-xl sm:prose-blockquote:text-2xl md:prose-blockquote:text-3xl prose-blockquote:text-theme-dark-text prose-blockquote:my-16 prose-blockquote:leading-relaxed prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-4 prose-ul:marker:text-primary prose-li:text-theme-dark-text/80 prose-img:w-full prose-img:border prose-img:border-theme-dark-text/10 prose-img:shadow-lg prose-img:grayscale prose-img:my-16 prose-a:text-primary hover:prose-a:text-primary/80 prose-p:first-of-type:first-letter:text-5xl sm:prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:font-newsreader prose-p:first-of-type:first-letter:text-theme-dark-text prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-3 sm:prose-p:first-of-type:first-letter:mr-4 prose-p:first-of-type:first-letter:mt-1 sm:prose-p:first-of-type:first-letter:mt-2 prose-p:first-of-type:first-letter:leading-none"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
@@ -170,7 +170,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             <div className="w-12 h-[1px] bg-primary mx-auto mt-4"></div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 sm:gap-y-16 gap-x-4 sm:gap-x-8">
             {recommendedBooks.map((book, index) => (
               <Link key={book.id} href={`/catalog/${book.slug}`} className={`flex flex-col gap-6 group cursor-pointer ${index % 2 === 1 ? 'md:mt-8' : ''}`}>
                 <div className="relative p-4 bg-surface-bright/5 border border-theme-dark-text/10 shadow-sm transition-all duration-500 group-hover:-translate-y-2">

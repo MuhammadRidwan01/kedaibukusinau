@@ -2,13 +2,20 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-export function HeroCarousel() {
+type HeroSlide = {
+  src: string;
+  alt: string;
+};
+
+const fallbackSlides: HeroSlide[] = [
+  { src: "/assets/baner1.png", alt: "Special Pre-Order & Limited Offers - 15% Off" },
+  { src: "/assets/baner2.png", alt: "New Arrivals - Order Now" },
+  { src: "/assets/baner3.png", alt: "Special Offers of the Month" },
+];
+
+export function HeroCarousel({ slides: providedSlides }: { slides?: HeroSlide[] }) {
   const [current, setCurrent] = useState(0);
-  const slides = [
-    { src: "/assets/baner1.png", alt: "Special Pre-Order & Limited Offers - 15% Off" },
-    { src: "/assets/baner2.png", alt: "New Arrivals - Order Now" },
-    { src: "/assets/baner3.png", alt: "Special Offers of the Month" },
-  ];
+  const slides = providedSlides?.length ? providedSlides : fallbackSlides;
   const total = slides.length;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 

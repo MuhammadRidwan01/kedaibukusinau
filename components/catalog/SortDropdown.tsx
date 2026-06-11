@@ -16,7 +16,7 @@ export function SortDropdown() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-on-surface-variant">
+      <span className="font-label-sm uppercase tracking-[0.2em] text-[10px] text-on-surface-variant hidden sm:inline">
         Sorted By
       </span>
       <select

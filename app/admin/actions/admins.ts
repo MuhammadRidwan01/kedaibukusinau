@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export async function getAdmins() {
   try {
@@ -18,6 +19,9 @@ export async function getAdmins() {
 }
 
 export async function createAdmin(data: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     if (!data.name || !data.email || !data.password) {
       return { success: false, error: "All fields are required" };
@@ -44,6 +48,9 @@ export async function createAdmin(data: any) {
 }
 
 export async function deleteAdmin(id: number) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     await prisma.admin.delete({ where: { id } });
     revalidatePath("/admin/admins");

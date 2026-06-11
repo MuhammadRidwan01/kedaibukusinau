@@ -1,0 +1,58 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "code-index-kedaibuku": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "uvx",
+        "code-index-mcp",
+        "--project-path",
+        "C:\\laragon\\www\\kedaibukusinau"
+      ]
+    },
+    "memory-kedaibuku": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "cmd",
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "context7": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp",
+        "--api-key",
+        "ctx7sk-e43fc940-c775-40b1-80b3-2f9a496fa530"
+      ]
+    },
+    "prisma-mcp-server": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx",
+        "-y",
+        "prisma",
+        "mcp"
+      ]
+    },
+    "convex-mcp": {
+      "type": "local",
+      "enabled": false,
+      "command": [
+        "npx",
+        "-y",
+        "convex@latest",
+        "mcp",
+        "start"
+      ]
+    }
+  }
+}

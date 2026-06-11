@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { getBooks, createBook, updateBook, deleteBook } from "@/app/admin/actions/books";
 import { Combobox } from "@/components/admin/Combobox";
+import { MultiCombobox } from "@/components/admin/MultiCombobox";
 
 export function BooksClient({ initialBooks, initialTotal, initialPage, initialTotalPages, categories }: any) {
   const [books, setBooks] = useState(initialBooks);
@@ -265,23 +266,67 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                   <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-newsreader text-2xl text-on-surface focus:ring-0 focus:border-primary" />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
+                  <Combobox
+                    label="Author"
+                    apiEndpoint="/api/admin/entities?type=author"
+                    value={formData.authorName}
+                    onChange={(v) => setFormData({ ...formData, authorName: v })}
+                    placeholder="Search or create author..."
+                  />
+                  <Combobox
+                    label="Publisher"
+                    apiEndpoint="/api/admin/entities?type=publisher"
+                    value={formData.publisherName}
+                    onChange={(v) => setFormData({ ...formData, publisherName: v })}
+                    placeholder="Search or create publisher..."
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <Combobox
+                    label="Category"
+                    apiEndpoint="/api/admin/entities?type=category"
+                    value={formData.categoryName}
+                    onChange={(v) => setFormData({ ...formData, categoryName: v })}
+                    placeholder="Search or create category..."
+                  />
                   <div className="flex flex-col">
-                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Author</label>
-                    <input required type="text" value={formData.authorName} onChange={e => setFormData({...formData, authorName: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Publisher</label>
-                    <input required type="text" value={formData.publisherName} onChange={e => setFormData({...formData, publisherName: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Price (Rp)</label>
+                    <input required type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="flex flex-col">
-                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Category</label>
-                    <input required type="text" value={formData.categoryName} onChange={e => setFormData({...formData, categoryName: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">ISBN</label>
+                    <input type="text" value={formData.isbn} onChange={e => setFormData({...formData, isbn: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
                   </div>
                   <div className="flex flex-col">
-                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Price (Rp)</label>
-                    <input required type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Original Price (Rp)</label>
+                    <input type="number" value={formData.originalPrice} onChange={e => setFormData({...formData, originalPrice: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex flex-col">
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Publication Year</label>
+                    <input type="number" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Pages</label>
+                    <input type="number" value={formData.pages} onChange={e => setFormData({...formData, pages: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex flex-col">
+                    <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Badge</label>
+                    <input type="text" value={formData.badge} onChange={e => setFormData({...formData, badge: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" placeholder="Best Seller, New, Sale" />
+                  </div>
+                  <div className="flex flex-col">
+                    <MultiCombobox
+                      label="Genres"
+                      apiEndpoint="/api/admin/entities?type=genre"
+                      value={formData.genreNames}
+                      onChange={(v) => setFormData({ ...formData, genreNames: v })}
+                      placeholder="Add genre..."
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
@@ -301,6 +346,15 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     </select>
                   </div>
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isFeaturedBestseller}
+                    onChange={e => setFormData({...formData, isFeaturedBestseller: e.target.checked})}
+                    className="h-4 w-4 accent-primary"
+                  />
+                  <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">Featured Bestseller</span>
+                </label>
                 <div className="flex flex-col">
                   <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Cover Image Upload</label>
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm font-inter file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-on-surface cursor-pointer" />

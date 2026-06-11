@@ -41,10 +41,10 @@ export default async function JournalPage() {
   };
 
   return (
-    <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text theme-dark">
+    <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text">
       <PublicNavbar theme="dark" />
       
-      <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-12">
+      <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-12 theme-dark">
         {/* Breadcrumb */}
         <div className="mb-16">
           <div className="flex items-center gap-2 font-label-sm text-theme-dark-text/60 uppercase tracking-widest text-[11px]">
@@ -56,8 +56,8 @@ export default async function JournalPage() {
 
         {/* Header Block */}
         <div className="flex flex-col mb-16 border-b border-theme-dark-text/10 pb-12">
-          <h1 className="font-display-lg text-5xl md:text-6xl text-theme-dark-text tracking-tight mb-4">Articles & Book Reviews</h1>
-          <p className="font-newsreader italic text-xl text-theme-dark-text/70 max-w-2xl">
+          <h1 className="font-display-lg text-3xl sm:text-5xl md:text-6xl text-theme-dark-text tracking-tight mb-4">Articles & Book Reviews</h1>
+          <p className="font-newsreader italic text-lg sm:text-xl text-theme-dark-text/70 max-w-2xl">
             Essays, interviews, and deep dives into the literary world. A quiet space for thoughtful reading.
           </p>
         </div>
@@ -90,7 +90,7 @@ export default async function JournalPage() {
                   )}
                 </div>
               </div>
-              <Link href={`/journal/${featured.slug}`} className="font-headline-h2 text-4xl leading-tight mb-6 text-theme-dark-text cursor-pointer hover:text-primary transition-colors block">
+              <Link href={`/journal/${featured.slug}`} className="font-headline-h2 text-2xl sm:text-3xl lg:text-4xl leading-tight mb-6 text-theme-dark-text cursor-pointer hover:text-primary transition-colors block">
                 {featured.title}
               </Link>
               <p className="font-body-md text-theme-dark-text/80 leading-loose mb-8">

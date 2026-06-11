@@ -45,24 +45,24 @@ export function BookCard({
           src={imageUrl}
         />
       </div>
-      <div className="flex flex-col gap-2 text-center">
-        <span className="font-headline-h3 text-headline-h3 text-on-surface">
+      <div className="flex flex-col gap-1.5 text-center mt-2">
+        <span className="font-headline-h3 text-base sm:text-lg text-on-surface line-clamp-2 leading-snug">
           {title}
         </span>
-        <span className="font-newsreader italic text-on-surface-variant">
+        <span className="font-newsreader italic text-sm sm:text-base text-on-surface-variant">
           {author}
         </span>
         {originalPrice ? (
-          <div className="flex items-center justify-center gap-3 mt-2">
-            <span className="font-label-sm text-sm text-on-surface-variant line-through opacity-60">
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-1.5">
+            <span className="font-label-sm text-xs sm:text-sm text-on-surface-variant line-through opacity-50 whitespace-nowrap">
               Rp {originalPrice.toLocaleString("id-ID")}
             </span>
-            <span className="font-label-sm text-sm text-primary">
+            <span className="font-label-sm text-sm sm:text-base text-primary font-bold whitespace-nowrap">
               Rp {price.toLocaleString("id-ID")}
             </span>
           </div>
         ) : (
-          <span className="font-label-sm text-sm text-primary mt-2">
+          <span className="font-label-sm text-sm sm:text-base text-primary font-bold mt-1.5 whitespace-nowrap">
             Rp {price.toLocaleString("id-ID")}
           </span>
         )}

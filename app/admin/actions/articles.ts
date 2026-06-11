@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { revalidatePath, updateTag } from "next/cache";
+import { auth } from "@/auth";
 
 export async function getArticles(params?: { q?: string; categoryId?: number; status?: string; page?: number; limit?: number }) {
   try {
@@ -38,6 +39,9 @@ export async function getArticles(params?: { q?: string; categoryId?: number; st
 }
 
 export async function createArticle(data: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     let categoryId: number | undefined;
     if (data.categoryName) {
@@ -79,6 +83,9 @@ export async function createArticle(data: any) {
 }
 
 export async function updateArticle(id: number, data: any) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     let categoryId: number | undefined;
     if (data.categoryName) {
@@ -124,6 +131,9 @@ export async function updateArticle(id: number, data: any) {
 }
 
 export async function deleteArticle(id: number) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   try {
     await prisma.article.delete({ where: { id } });
     revalidatePath("/", "layout");
