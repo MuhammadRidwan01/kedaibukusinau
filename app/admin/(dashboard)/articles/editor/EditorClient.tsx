@@ -12,6 +12,7 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import { createArticle, updateArticle } from "@/app/admin/actions/articles";
+import { PublicNavbar } from "@/components/layout/PublicNavbar";
 
 export function EditorClient({ initialArticle, categories }: any) {
   const router = useRouter();
@@ -19,6 +20,7 @@ export function EditorClient({ initialArticle, categories }: any) {
   const [wordCount, setWordCount] = useState(0);
   const [, setSelectionUpdate] = useState(false); // force re-render for toolbar
   const [isDirty, setIsDirty] = useState(false); // track unsaved changes
+  const [isPreview, setIsPreview] = useState(false); // Track preview mode
 
   const [formData, setFormData] = useState({
     title: initialArticle?.title || "",
@@ -194,18 +196,82 @@ export function EditorClient({ initialArticle, categories }: any) {
         </div>
 
         <div className="flex items-center gap-4">
-          <button disabled={loading} onClick={() => handleSave("Draft")} className="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 hover:bg-white transition-colors disabled:opacity-50">
-            Save Draft
+          <button
+            onClick={() => setIsPreview(!isPreview)}
+            className={`border font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 transition-colors flex items-center gap-2 ${
+              isPreview 
+                ? "bg-theme-dark-bg text-theme-dark-text border-theme-dark-text/30 hover:bg-theme-dark-text hover:text-theme-dark-bg"
+                : "border-outline text-outline hover:bg-white"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {isPreview ? "edit" : "visibility"}
+            </span>
+            {isPreview ? "Edit Article" : "Preview"}
           </button>
+          
+          {!isPreview && (
+            <button disabled={loading} onClick={() => handleSave("Draft")} className="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 hover:bg-white transition-colors disabled:opacity-50">
+              Save Draft
+            </button>
+          )}
           <button disabled={loading} onClick={() => handleSave("Published")} className="bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-8 py-2.5 hover:bg-on-surface transition-colors shadow-lg shadow-primary/20 disabled:opacity-50">
             Publish
           </button>
         </div>
       </header>
 
-      {/* Editor Workspace */}
-      <div className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-[1000px] mx-auto px-6 py-12 flex flex-col gap-12">
+      {/* Workspace */}
+      <div className={`flex-1 overflow-y-auto w-full ${isPreview ? "bg-theme-dark-bg text-theme-dark-text theme-dark" : ""}`}>
+        {isPreview ? (
+          <div className="min-h-full flex flex-col">
+            <div className="pointer-events-none select-none opacity-50">
+              <PublicNavbar theme="dark" />
+            </div>
+            
+            <main className="flex-grow w-full max-w-[1000px] mx-auto px-6 py-12">
+              <div className="mb-16">
+                <div className="flex items-center gap-2 font-label-sm text-theme-dark-text/60 uppercase tracking-widest text-[11px] flex-wrap">
+                  <span>Home</span>
+                  <span className="opacity-50">/</span>
+                  <span>The Journal</span>
+                  <span className="opacity-50">/</span>
+                  <span className="text-theme-dark-text font-semibold border-b border-primary">{formData.title || "Untitled Article"}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center text-center mb-16 max-w-[800px] mx-auto">
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{formData.categoryName || "Editorial"}</span>
+                  <div className="flex items-center gap-2 font-newsreader italic text-sm text-theme-dark-text/60">
+                    <span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                    <span className="w-1 h-1 rounded-full bg-theme-dark-text/30"></span>
+                    <span>{formData.readTime ? `${formData.readTime} min read` : "5 min read"}</span>
+                  </div>
+                </div>
+                <h1 className="font-display-lg text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-theme-dark-text tracking-tight leading-[1.1]">
+                  {formData.title || "Untitled Article"}
+                </h1>
+              </div>
+
+              {formData.imageUrl && (
+                <div className="w-full relative mb-20 border border-theme-dark-text/10 shadow-lg">
+                  <img className="w-full aspect-video md:aspect-[21/9] object-cover grayscale" src={formData.imageUrl} alt="Hero Image" />
+                </div>
+              )}
+
+              <div 
+                className="max-w-[700px] mx-auto prose prose-invert prose-stone prose-lg prose-p:font-body-md prose-p:text-theme-dark-text/80 prose-p:leading-loose prose-p:my-8 prose-headings:font-headline-h2 prose-headings:text-theme-dark-text prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-6 prose-blockquote:border-l-[3px] prose-blockquote:border-primary prose-blockquote:pl-8 prose-blockquote:font-newsreader prose-blockquote:italic prose-blockquote:text-xl sm:prose-blockquote:text-2xl md:prose-blockquote:text-3xl prose-blockquote:text-theme-dark-text prose-blockquote:my-16 prose-blockquote:leading-relaxed prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-4 prose-ul:marker:text-primary prose-li:text-theme-dark-text/80 prose-img:w-full prose-img:border prose-img:border-theme-dark-text/10 prose-img:shadow-lg prose-img:grayscale prose-img:my-16 prose-a:text-primary hover:prose-a:text-primary/80 prose-p:first-of-type:first-letter:text-5xl sm:prose-p:first-of-type:first-letter:text-7xl prose-p:first-of-type:first-letter:font-newsreader prose-p:first-of-type:first-letter:text-theme-dark-text prose-p:first-of-type:first-letter:float-left prose-p:first-of-type:first-letter:mr-3 sm:prose-p:first-of-type:first-letter:mr-4 prose-p:first-of-type:first-letter:mt-1 sm:prose-p:first-of-type:first-letter:mt-2 prose-p:first-of-type:first-letter:leading-none"
+                dangerouslySetInnerHTML={{ __html: editor.getHTML() || "<p>Start writing to see the preview...</p>" }}
+              />
+            </main>
+            
+            <div className="pointer-events-none select-none opacity-50">
+               <MockPublicFooter />
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-[1000px] mx-auto px-6 py-12 flex flex-col gap-12">
           {/* Metadata Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="col-span-1 flex flex-col gap-3">
@@ -310,9 +376,48 @@ export function EditorClient({ initialArticle, categories }: any) {
             <div className="flex justify-between items-center mt-3">
               <span className="font-newsreader italic text-sm text-on-surface-variant/60">Word count: {wordCount}</span>
             </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
+
+const MockPublicFooter = () => (
+  <footer className="bg-transparent border-t border-theme-dark-text/10 mt-24">
+    <div className="w-full py-12 sm:py-16 md:py-20 px-6 max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 lg:gap-16 text-theme-dark-text">
+      <div className="flex flex-col gap-6 col-span-2 md:col-span-1">
+        <div className="text-2xl font-bold font-newsreader tracking-tight">Kedai Sinau.</div>
+        <p className="font-newsreader italic text-base leading-relaxed text-theme-dark-text/70">
+          An independent bookstore. We read, select, and sell good books.
+        </p>
+      </div>
+      <div className="flex flex-col gap-4">
+        <h4 className="font-newsreader text-sm uppercase tracking-[0.2em] mb-4 text-theme-dark-text">Explore</h4>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">Home</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">Collections</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">New Releases</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">The Journal</span>
+      </div>
+      <div className="flex flex-col gap-4">
+        <h4 className="font-newsreader text-sm uppercase tracking-[0.2em] mb-4 text-theme-dark-text">Support</h4>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">How to Order</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">Shipping Info</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">Returns</span>
+        <span className="font-newsreader text-sm text-theme-dark-text/70">Terms & Conditions</span>
+      </div>
+      <div className="flex flex-col gap-4">
+        <h4 className="font-newsreader text-sm uppercase tracking-[0.2em] mb-4 text-theme-dark-text">Visit Us</h4>
+        <p className="font-newsreader italic text-sm leading-relaxed text-theme-dark-text/70">
+          Jakarta, Indonesia
+        </p>
+      </div>
+      <div className="md:col-span-4 pt-12 mt-4 border-t text-center border-theme-dark-text/10">
+        <p className="font-newsreader uppercase tracking-widest text-xs text-theme-dark-text/50">
+          © 2026 Kedai Sinau. All Rights Reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+);
