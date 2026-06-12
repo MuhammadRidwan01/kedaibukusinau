@@ -12,7 +12,7 @@ export default function AdminDashboardLayout({
       <div className="noise-overlay"></div>
       <Toaster position="top-right" richColors closeButton />
       <AdminSidebar />
-      <main className="flex-1 px-8 lg:px-16 py-12 lg:py-16 overflow-y-auto">
+      <main className="flex-1 px-4 md:px-8 lg:px-16 pt-20 md:pt-12 lg:pt-16 pb-8 md:pb-12 lg:pb-16 overflow-y-auto">
         <Suspense fallback={<div className="p-8 text-zinc-500">Loading...</div>}>
           {children}
         </Suspense>

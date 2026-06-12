@@ -43,7 +43,7 @@ export default function AdminLogin() {
     <div className="flex flex-col min-h-screen items-center justify-center bg-background text-on-surface antialiased relative">
       <div className="noise-overlay"></div>
 
-      <div className="w-full max-w-[400px] p-12 bg-surface border border-outline-variant shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative flex flex-col items-center">
+      <div className="w-full max-w-[90vw] sm:max-w-[400px] p-8 md:p-12 bg-surface border border-outline-variant shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative flex flex-col items-center">
         {/* Subtle decorative corners */}
         <div className="absolute top-1 left-1 w-5 h-5 border-t border-l border-outline opacity-30"></div>
         <div className="absolute bottom-1 right-1 w-5 h-5 border-b border-r border-outline opacity-30"></div>

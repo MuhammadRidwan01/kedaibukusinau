@@ -147,7 +147,7 @@ export function MetadataClient({
   const currentData = data[activeTab];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full px-2">
       <header className="flex flex-col md:flex-row md:justify-between md:items-end pb-8 border-b border-outline-variant/80 shrink-0">
         <div className="flex flex-col gap-1">
           <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
@@ -167,11 +167,10 @@ export function MetadataClient({
                 setEditingId(null);
                 setExpandedId(null);
               }}
-              className={`font-label-sm uppercase tracking-widest text-[9px] px-5 py-2.5 rounded-full transition-all duration-300 ${
-                activeTab === tab.id
-                  ? "bg-primary text-white"
-                  : "bg-transparent text-on-surface-variant border border-outline-variant/60 hover:border-primary/50 hover:text-primary"
-              }`}
+              className={`font-label-sm uppercase tracking-widest text-[9px] px-5 py-2.5 rounded-full transition-all duration-300 ${activeTab === tab.id
+                ? "bg-primary text-white"
+                : "bg-transparent text-on-surface-variant border border-outline-variant/60 hover:border-primary/50 hover:text-primary"
+                }`}
             >
               {tab.label}
             </button>
@@ -259,7 +258,7 @@ export function MetadataClient({
 
                     {/* Actions */}
                     {!editingId && (
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                      <div className="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 md:translate-y-2 md:group-hover:translate-y-0">
                         <button
                           onClick={(e) => { e.stopPropagation(); startEdit(item); }}
                           className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300" title="Edit"

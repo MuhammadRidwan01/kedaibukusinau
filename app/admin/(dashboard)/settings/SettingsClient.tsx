@@ -304,7 +304,7 @@ export function SettingsClient({ settings, banners, testimonials: initialTestimo
       <div className="w-full">
         <form
           id="settingsForm"
-          className="max-w-[800px] mx-auto pt-8 flex flex-col gap-24 pb-32"
+          className="max-w-[800px] mx-auto pt-8 flex flex-col gap-16 md:gap-24 pb-32"
           onSubmit={(e) => e.preventDefault()}
         >
           {/* 01. Store Identity */}
@@ -496,7 +496,7 @@ export function SettingsClient({ settings, banners, testimonials: initialTestimo
                 </span>
               </label>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {bannerItems?.map((banner: any) => (
                   <div key={banner.id} className="bg-white border border-outline-variant/40 p-4 flex flex-col gap-4">
                     <div className="relative group">
@@ -763,7 +763,7 @@ export function SettingsClient({ settings, banners, testimonials: initialTestimo
             : "translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        <div className="border-t border-outline-variant/80 bg-[#FAF3E0]/95 backdrop-blur-sm px-6 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <div className="border-t border-outline-variant/80 bg-[#FAF3E0]/95 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
           <div className="max-w-[800px] mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="relative flex h-2 w-2">

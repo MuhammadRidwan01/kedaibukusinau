@@ -183,22 +183,22 @@ export function EditorClient({ initialArticle, categories }: any) {
   }
 
   return (
-    <div className="flex flex-col -mt-12 lg:-mt-16 -mx-8 lg:-mx-16 h-[calc(100vh)] bg-[#FAF3E0]">
+    <div className="flex flex-col -mt-6 md:-mt-12 lg:-mt-16 -mx-4 md:-mx-8 lg:-mx-16 h-[calc(100vh)] bg-[#FAF3E0]">
       {/* Top Toolbar */}
-      <header className="flex justify-between items-center px-6 lg:px-10 py-6 border-b border-outline-variant/80 shrink-0 bg-[#FAF3E0] sticky top-0 z-30">
-        <div className="flex items-center gap-6">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-4 md:px-6 lg:px-10 py-4 md:py-6 border-b border-outline-variant/80 shrink-0 bg-[#FAF3E0] sticky top-0 z-30">
+        <div className="flex items-center gap-3 md:gap-6">
           <button onClick={handleBack} className="text-on-surface-variant hover:text-primary transition-colors group flex items-center gap-2 bg-transparent border-none cursor-pointer">
             <span className="material-symbols-outlined transform group-hover:-translate-x-1 transition-transform">arrow_back</span>
             <span className="font-label-sm text-[11px] uppercase tracking-widest hidden md:inline">Back to Articles</span>
           </button>
           <div className="h-6 w-[1px] bg-outline-variant/60 hidden md:block"></div>
-          <h2 className="font-headline-h3 text-2xl italic">{initialArticle ? "Edit Article" : "New Article"}</h2>
+          <h2 className="font-headline-h3 text-lg md:text-2xl italic">{initialArticle ? "Edit Article" : "New Article"}</h2>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 flex-wrap">
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className={`border font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 transition-colors flex items-center gap-2 ${
+            className={`border font-newsreader uppercase tracking-widest text-xs px-3 md:px-6 py-2 md:py-2.5 transition-colors flex items-center gap-1.5 md:gap-2 ${
               isPreview 
                 ? "bg-theme-dark-bg text-theme-dark-text border-theme-dark-text/30 hover:bg-theme-dark-text hover:text-theme-dark-bg"
                 : "border-outline text-outline hover:bg-white"
@@ -207,15 +207,15 @@ export function EditorClient({ initialArticle, categories }: any) {
             <span className="material-symbols-outlined text-[18px]">
               {isPreview ? "edit" : "visibility"}
             </span>
-            {isPreview ? "Edit Article" : "Preview"}
+            <span className="hidden sm:inline">{isPreview ? "Edit Article" : "Preview"}</span>
           </button>
           
           {!isPreview && (
-            <button disabled={loading} onClick={() => handleSave("Draft")} className="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-6 py-2.5 hover:bg-white transition-colors disabled:opacity-50">
-              Save Draft
+            <button disabled={loading} onClick={() => handleSave("Draft")} className="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-3 md:px-6 py-2 md:py-2.5 hover:bg-white transition-colors disabled:opacity-50">
+              <span className="hidden sm:inline">Save </span>Draft
             </button>
           )}
-          <button disabled={loading} onClick={() => handleSave("Published")} className="bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-8 py-2.5 hover:bg-on-surface transition-colors shadow-lg shadow-primary/20 disabled:opacity-50">
+          <button disabled={loading} onClick={() => handleSave("Published")} className="bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-4 md:px-8 py-2 md:py-2.5 hover:bg-on-surface transition-colors shadow-lg shadow-primary/20 disabled:opacity-50">
             Publish
           </button>
         </div>
@@ -323,7 +323,7 @@ export function EditorClient({ initialArticle, categories }: any) {
             <div className="border border-outline-variant bg-white flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.02)] min-h-[500px]">
               
               {/* Toolbar */}
-              <div className="border-b border-outline-variant/60 p-3 flex flex-wrap gap-2 bg-[#FAF3E0] sticky top-0 z-10">
+              <div className="border-b border-outline-variant/60 p-2 md:p-3 flex flex-wrap gap-1.5 md:gap-2 bg-[#FAF3E0] sticky top-0 z-10 overflow-x-auto">
                 
                 {/* Paragraph & Headings */}
                 <div className="flex items-center mr-4 pr-4 border-r border-outline-variant/40 gap-1">

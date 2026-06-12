@@ -163,7 +163,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
       </header>
 
       <div className="flex-1 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 md:gap-6">
           <div className="flex items-end gap-2 border-b border-outline-variant pb-1 w-full md:w-96">
             <span className="material-symbols-outlined font-light text-on-surface-variant text-[20px] mb-0.5">search</span>
             <input
@@ -193,45 +193,89 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
         {/* Table */}
         <div className="w-full relative">
           {loading && <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center">Loading...</div>}
-          <div className="grid grid-cols-[3rem_4rem_2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-end px-4 py-3 border-b-2 border-outline-variant/80 text-on-surface-variant">
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">No</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest text-center">Cover</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Title</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Author</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Price</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Availability</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Status</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest text-right pr-2">Actions</span>
+
+          {/* ── Desktop Table ── */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-[3rem_4rem_2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-end px-4 py-3 border-b-2 border-outline-variant/80 text-on-surface-variant">
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">No</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest text-center">Cover</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Title</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Author</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Price</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Availability</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Status</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest text-right pr-2">Actions</span>
+            </div>
+
+            <div className="flex flex-col">
+              {books.length === 0 ? (
+                <div className="py-8 text-center text-on-surface-variant italic font-newsreader">No books found.</div>
+              ) : (
+                books.map((book: any, index: number) => (
+                  <div key={book.id} className="grid grid-cols-[3rem_4rem_2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-4 py-4 border-b border-outline-variant/40 hover:bg-white transition-colors group">
+                    <span className="font-newsreader text-sm opacity-50">{String((page - 1) * 20 + index + 1).padStart(2, "0")}</span>
+                    <img alt={book.title} className="w-10 aspect-[2/3] object-cover editorial-inner shadow-sm bg-surface-variant" src={book.imageUrl || 'https://via.placeholder.com/150'} />
+                    <span className="font-headline-h3 text-lg group-hover:text-primary transition-colors truncate">{book.title}</span>
+                    <span className="font-newsreader italic text-on-surface-variant truncate">{book.author?.name || "-"}</span>
+                    <span className="font-label-sm text-[12px]">Rp {book.price.toLocaleString("id-ID")}</span>
+                    <div>
+                      <span className={`px-2 py-1 font-label-sm text-[9px] uppercase tracking-widest ${book.availability === "Available" ? "bg-[#25D366]/10 text-[#25D366]" : "bg-primary/10 text-primary"}`}>
+                        {book.availability}
+                      </span>
+                    </div>
+                    <div>
+                      <span className={`px-2 py-1 border font-label-sm text-[9px] uppercase tracking-widest ${book.status === "Active" ? "border-on-surface-variant text-on-surface-variant" : "border-outline-variant text-outline-variant"}`}>
+                        {book.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleOpenDrawer(book)} className="text-on-surface-variant hover:text-primary transition-colors" title="Edit">
+                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                      </button>
+                      <button onClick={() => handleDeleteClick(book)} className="text-on-surface-variant hover:text-primary transition-colors" title="Delete">
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-col">
+          {/* ── Mobile Card List ── */}
+          <div className="md:hidden flex flex-col gap-3">
             {books.length === 0 ? (
               <div className="py-8 text-center text-on-surface-variant italic font-newsreader">No books found.</div>
             ) : (
               books.map((book: any, index: number) => (
-                <div key={book.id} className="grid grid-cols-[3rem_4rem_2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-4 py-4 border-b border-outline-variant/40 hover:bg-white transition-colors group">
-                  <span className="font-newsreader text-sm opacity-50">{String((page - 1) * 20 + index + 1).padStart(2, "0")}</span>
-                  <img alt={book.title} className="w-10 aspect-[2/3] object-cover editorial-inner shadow-sm bg-surface-variant" src={book.imageUrl || 'https://via.placeholder.com/150'} />
-                  <span className="font-headline-h3 text-lg group-hover:text-primary transition-colors truncate">{book.title}</span>
-                  <span className="font-newsreader italic text-on-surface-variant truncate">{book.author?.name || "-"}</span>
-                  <span className="font-label-sm text-[12px]">Rp {book.price.toLocaleString("id-ID")}</span>
-                  <div>
-                    <span className={`px-2 py-1 font-label-sm text-[9px] uppercase tracking-widest ${book.availability === "Available" ? "bg-[#25D366]/10 text-[#25D366]" : "bg-primary/10 text-primary"}`}>
-                      {book.availability}
-                    </span>
-                  </div>
-                  <div>
-                    <span className={`px-2 py-1 border font-label-sm text-[9px] uppercase tracking-widest ${book.status === "Active" ? "border-on-surface-variant text-on-surface-variant" : "border-outline-variant text-outline-variant"}`}>
-                      {book.status}
-                    </span>
-                  </div>
-                  <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleOpenDrawer(book)} className="text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                    <button onClick={() => handleDeleteClick(book)} className="text-on-surface-variant hover:text-primary transition-colors" title="Delete">
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
-                    </button>
+                <div key={book.id} className="bg-white border border-outline-variant/40 p-4 flex gap-4 shadow-sm">
+                  <img
+                    alt={book.title}
+                    className="w-14 aspect-[2/3] object-cover editorial-inner shadow-sm bg-surface-variant shrink-0"
+                    src={book.imageUrl || 'https://via.placeholder.com/150'}
+                  />
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="font-headline-h3 text-base leading-snug truncate">{book.title}</h3>
+                    <span className="font-newsreader italic text-sm text-on-surface-variant truncate">{book.author?.name || "-"}</span>
+                    <div className="flex items-center gap-2 flex-wrap mt-1">
+                      <span className="font-label-sm text-[11px] font-semibold">Rp {book.price.toLocaleString("id-ID")}</span>
+                      <span className={`px-1.5 py-0.5 font-label-sm text-[8px] uppercase tracking-widest ${book.availability === "Available" ? "bg-[#25D366]/10 text-[#25D366]" : "bg-primary/10 text-primary"}`}>
+                        {book.availability}
+                      </span>
+                      <span className={`px-1.5 py-0.5 border font-label-sm text-[8px] uppercase tracking-widest ${book.status === "Active" ? "border-on-surface-variant text-on-surface-variant" : "border-outline-variant text-outline-variant"}`}>
+                        {book.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-outline-variant/30">
+                      <button onClick={() => handleOpenDrawer(book)} className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                        <span className="font-label-sm text-[9px] uppercase tracking-widest">Edit</span>
+                      </button>
+                      <button onClick={() => handleDeleteClick(book)} className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Delete">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                        <span className="font-label-sm text-[9px] uppercase tracking-widest">Delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -253,19 +297,19 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
           <div className="relative w-full max-w-2xl bg-[#FAF3E0] h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            <header className="flex justify-between items-center p-8 border-b border-outline-variant shrink-0">
-              <h3 className="font-headline-h3 text-2xl italic">{selectedBook ? "Edit Book" : "Add New Book"}</h3>
+            <header className="flex justify-between items-center p-6 md:p-8 border-b border-outline-variant shrink-0">
+              <h3 className="font-headline-h3 text-xl md:text-2xl italic">{selectedBook ? "Edit Book" : "Add New Book"}</h3>
               <button onClick={() => setIsDrawerOpen(false)} className="text-on-surface-variant hover:text-primary transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </header>
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8">
               <form id="book-form" onSubmit={handleSaveBook} className="flex flex-col gap-8">
                 <div className="flex flex-col">
                   <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Book Title</label>
-                  <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-newsreader text-2xl text-on-surface focus:ring-0 focus:border-primary" />
+                  <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 font-newsreader text-xl md:text-2xl text-on-surface focus:ring-0 focus:border-primary" />
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <Combobox
                     label="Author"
                     apiEndpoint="/api/admin/entities?type=author"
@@ -281,7 +325,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     placeholder="Search or create publisher..."
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <Combobox
                     label="Category"
                     apiEndpoint="/api/admin/entities?type=category"
@@ -294,7 +338,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     <input required type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col">
                     <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">ISBN</label>
                     <input type="text" value={formData.isbn} onChange={e => setFormData({...formData, isbn: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
@@ -304,7 +348,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     <input type="number" value={formData.originalPrice} onChange={e => setFormData({...formData, originalPrice: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col">
                     <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Publication Year</label>
                     <input type="number" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
@@ -314,7 +358,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     <input type="number" value={formData.pages} onChange={e => setFormData({...formData, pages: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col">
                     <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Badge</label>
                     <input type="text" value={formData.badge} onChange={e => setFormData({...formData, badge: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter" placeholder="Best Seller, New, Sale" />
@@ -329,7 +373,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="flex flex-col">
                     <label className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Availability</label>
                     <select value={formData.availability} onChange={e => setFormData({...formData, availability: e.target.value})} className="w-full bg-transparent border-0 border-b border-outline-variant py-2 focus:ring-0 focus:border-primary font-inter">
@@ -366,7 +410,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
                 </div>
               </form>
             </div>
-            <footer className="p-8 border-t border-outline-variant bg-[#FAF3E0] flex justify-end gap-4 shrink-0">
+            <footer className="p-6 md:p-8 border-t border-outline-variant bg-[#FAF3E0] flex justify-end gap-4 shrink-0">
               <button onClick={() => setIsDrawerOpen(false)} className="border border-outline text-outline font-newsreader uppercase tracking-widest text-xs px-6 py-3 hover:bg-white transition-colors">Cancel</button>
               <button form="book-form" type="submit" disabled={loading} className="bg-primary text-white font-newsreader uppercase tracking-widest text-xs px-8 py-3 hover:bg-on-surface transition-colors shadow-lg disabled:opacity-50">Save Book</button>
             </footer>
@@ -378,7 +422,7 @@ export function BooksClient({ initialBooks, initialTotal, initialPage, initialTo
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsDeleteModalOpen(false)} />
-          <div className="relative bg-white border border-outline-variant p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white border border-outline-variant p-6 md:p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <h3 className="font-headline-h3 text-2xl italic text-primary mb-4">Delete Book?</h3>
             <p className="font-inter text-on-surface-variant mb-8">Are you sure you want to delete <strong className="text-on-surface">{selectedBook?.title}</strong>? This action cannot be undone.</p>
             <div className="flex justify-end gap-4">

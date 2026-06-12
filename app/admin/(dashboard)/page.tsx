@@ -39,7 +39,7 @@ export default async function AdminDashboard() {
           <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
             Overview
           </span>
-          <h2 className="font-headline-h2 text-4xl lg:text-5xl text-on-surface italic tracking-tight">
+          <h2 className="font-headline-h2 text-3xl md:text-4xl lg:text-5xl text-on-surface italic tracking-tight">
             Dashboard Overview
           </h2>
         </div>
@@ -54,7 +54,7 @@ export default async function AdminDashboard() {
       </header>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10 md:mb-16">
         {/* Stat: Total Books */}
         <div className="p-6 bg-white border border-outline-variant/40 shadow-sm relative overflow-hidden group">
           <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-700">
@@ -64,7 +64,7 @@ export default async function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Total Books
             </span>
-            <span className="font-headline-h1 text-5xl">{totalBooks.toLocaleString("id-ID")}</span>
+            <span className="font-headline-h1 text-3xl md:text-5xl">{totalBooks.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ export default async function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Total Articles
             </span>
-            <span className="font-headline-h1 text-5xl">{totalArticles.toLocaleString("id-ID")}</span>
+            <span className="font-headline-h1 text-3xl md:text-5xl">{totalArticles.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -90,7 +90,7 @@ export default async function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-primary">
               Unavailable Books
             </span>
-            <span className="font-headline-h1 text-5xl text-primary">{unavailableBooksCount.toLocaleString("id-ID")}</span>
+            <span className="font-headline-h1 text-3xl md:text-5xl text-primary">{unavailableBooksCount.toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default async function AdminDashboard() {
             <span className="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant">
               Categories
             </span>
-            <span className="font-headline-h1 text-5xl">{totalCategories.toLocaleString("id-ID")}</span>
+            <span className="font-headline-h1 text-3xl md:text-5xl">{totalCategories.toLocaleString("id-ID")}</span>
           </div>
         </div>
       </div>

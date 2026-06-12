@@ -78,7 +78,7 @@ export function ArticlesClient({ initialArticles, initialTotal, initialPage, ini
       </header>
 
       <div className="flex-1 py-8 relative">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 md:gap-6">
           <div className="flex items-end gap-2 border-b border-outline-variant pb-1 w-full md:w-96">
             <span className="material-symbols-outlined font-light text-on-surface-variant text-[20px] mb-0.5">search</span>
             <input type="text" placeholder="Search by article title..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent border-none focus:ring-0 p-0 w-full font-newsreader italic text-lg placeholder-on-surface-variant/50 text-on-surface focus:outline-none" />
@@ -96,41 +96,87 @@ export function ArticlesClient({ initialArticles, initialTotal, initialPage, ini
 
         <div className="w-full relative">
           {loading && <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center">Loading...</div>}
-          <div className="grid grid-cols-[3rem_6rem_2.5fr_1fr_1fr_1fr_auto] gap-4 items-end px-4 py-3 border-b-2 border-outline-variant/80 text-on-surface-variant">
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">No</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest text-center">Thumb</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Title</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Category</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Date</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest">Status</span>
-            <span className="font-label-sm text-[9px] uppercase tracking-widest text-right pr-2">Actions</span>
+
+          {/* ── Desktop Table ── */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-[3rem_6rem_2.5fr_1fr_1fr_1fr_auto] gap-4 items-end px-4 py-3 border-b-2 border-outline-variant/80 text-on-surface-variant">
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">No</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest text-center">Thumb</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Title</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Category</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Date</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest">Status</span>
+              <span className="font-label-sm text-[9px] uppercase tracking-widest text-right pr-2">Actions</span>
+            </div>
+
+            <div className="flex flex-col">
+              {articles.length === 0 ? (
+                <div className="py-8 text-center text-on-surface-variant font-newsreader italic">No articles found.</div>
+              ) : (
+                articles.map((article: any, index: number) => (
+                  <div key={article.id} className="grid grid-cols-[3rem_6rem_2.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-4 py-4 border-b border-outline-variant/40 hover:bg-white transition-colors group">
+                    <span className="font-newsreader text-sm opacity-50">{String((page - 1) * 20 + index + 1).padStart(2, "0")}</span>
+                    <img alt="Thumbnail" className="w-16 aspect-video object-cover editorial-inner shadow-sm grayscale bg-surface-variant" src={article.imageUrl || 'https://via.placeholder.com/160x90'} />
+                    <span className="font-headline-h3 text-lg group-hover:text-primary transition-colors truncate">{article.title}</span>
+                    <span className="font-newsreader italic text-on-surface-variant truncate">{article.category?.name || "Uncategorized"}</span>
+                    <span className="font-label-sm text-[11px] text-on-surface-variant/70">
+                      {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                    <div>
+                      <span className={`px-2 py-1 font-label-sm text-[9px] uppercase tracking-widest ${article.status === "Published" ? "bg-[#25D366]/10 text-[#25D366]" : "border border-outline-variant text-outline-variant"}`}>
+                        {article.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Link href={`/admin/articles/editor?id=${article.id}`} className="text-on-surface-variant hover:text-primary transition-colors" title="Edit">
+                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                      </Link>
+                      <button onClick={() => handleDeleteClick(article)} className="text-on-surface-variant hover:text-primary transition-colors" title="Delete">
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-col">
+          {/* ── Mobile Card List ── */}
+          <div className="md:hidden flex flex-col gap-3">
             {articles.length === 0 ? (
               <div className="py-8 text-center text-on-surface-variant font-newsreader italic">No articles found.</div>
             ) : (
               articles.map((article: any, index: number) => (
-                <div key={article.id} className="grid grid-cols-[3rem_6rem_2.5fr_1fr_1fr_1fr_auto] gap-4 items-center px-4 py-4 border-b border-outline-variant/40 hover:bg-white transition-colors group">
-                  <span className="font-newsreader text-sm opacity-50">{String((page - 1) * 20 + index + 1).padStart(2, "0")}</span>
-                  <img alt="Thumbnail" className="w-16 aspect-video object-cover editorial-inner shadow-sm grayscale bg-surface-variant" src={article.imageUrl || 'https://via.placeholder.com/160x90'} />
-                  <span className="font-headline-h3 text-lg group-hover:text-primary transition-colors truncate">{article.title}</span>
-                  <span className="font-newsreader italic text-on-surface-variant truncate">{article.category?.name || "Uncategorized"}</span>
-                  <span className="font-label-sm text-[11px] text-on-surface-variant/70">
-                    {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </span>
-                  <div>
-                    <span className={`px-2 py-1 font-label-sm text-[9px] uppercase tracking-widest ${article.status === "Published" ? "bg-[#25D366]/10 text-[#25D366]" : "border border-outline-variant text-outline-variant"}`}>
-                      {article.status}
-                    </span>
-                  </div>
-                  <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link href={`/admin/articles/editor?id=${article.id}`} className="text-on-surface-variant hover:text-primary transition-colors" title="Edit">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </Link>
-                    <button onClick={() => handleDeleteClick(article)} className="text-on-surface-variant hover:text-primary transition-colors" title="Delete">
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
-                    </button>
+                <div key={article.id} className="bg-white border border-outline-variant/40 p-4 flex gap-4 shadow-sm">
+                  <img
+                    alt="Thumbnail"
+                    className="w-20 aspect-video object-cover editorial-inner shadow-sm grayscale bg-surface-variant shrink-0 self-start"
+                    src={article.imageUrl || 'https://via.placeholder.com/160x90'}
+                  />
+                  <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <h3 className="font-headline-h3 text-base leading-snug line-clamp-2">{article.title}</h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-newsreader italic text-xs text-on-surface-variant">{article.category?.name || "Uncategorized"}</span>
+                      <span className="w-1 h-1 rounded-full bg-on-surface-variant/30"></span>
+                      <span className="font-label-sm text-[10px] text-on-surface-variant/70">
+                        {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      <span className={`px-1.5 py-0.5 font-label-sm text-[8px] uppercase tracking-widest ${article.status === "Published" ? "bg-[#25D366]/10 text-[#25D366]" : "border border-outline-variant text-outline-variant"}`}>
+                        {article.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-outline-variant/30">
+                      <Link href={`/admin/articles/editor?id=${article.id}`} className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Edit">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                        <span className="font-label-sm text-[9px] uppercase tracking-widest">Edit</span>
+                      </Link>
+                      <button onClick={() => handleDeleteClick(article)} className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Delete">
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                        <span className="font-label-sm text-[9px] uppercase tracking-widest">Delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -150,7 +196,7 @@ export function ArticlesClient({ initialArticles, initialTotal, initialPage, ini
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsDeleteModalOpen(false)} />
-          <div className="relative bg-white border border-outline-variant p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white border border-outline-variant p-6 md:p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <h3 className="font-headline-h3 text-2xl italic text-primary mb-4">Delete Article?</h3>
             <p className="font-inter text-on-surface-variant mb-8">Are you sure you want to delete <strong className="text-on-surface">{selectedArticle?.title}</strong>? This action cannot be undone.</p>
             <div className="flex justify-end gap-4">
