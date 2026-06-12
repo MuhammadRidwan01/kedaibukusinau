@@ -147,18 +147,16 @@ body {
 .carousel-slide {
     min-width: 100%;
     position: relative;
+    aspect-ratio: 16 / 9;
 }
 
 .carousel-slide img {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    display: block;
     object-fit: cover;
     object-position: center center;
 }
 
 @media (min-width: 768px) {
-    .carousel-slide img {
+    .carousel-slide {
         aspect-ratio: 1920 / 600;
     }
 }

@@ -5,6 +5,7 @@ import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { BookCard } from "@/components/ui/BookCard";
 import Link from "next/link";
+import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 
 async function getArticleData(slug: string) {
@@ -95,8 +96,30 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
   const readTimeStr = article.readTime ? `${article.readTime} min read` : "5 min read";
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    image: article.imageUrl || undefined,
+    datePublished: article.publishedAt?.toISOString() || undefined,
+    description: article.excerpt || article.content.substring(0, 160),
+    author: { "@type": "Organization", name: "Kedai Sinau" },
+    publisher: {
+      "@type": "Organization",
+      name: "Kedai Sinau",
+      url: siteUrl,
+    },
+    mainEntityOfPage: `${siteUrl}/journal/${slug}`,
+  };
+
   return (
     <div className="bg-theme-dark-bg min-h-screen flex flex-col text-theme-dark-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <PublicNavbar theme="dark" />
       
       <main className="flex-grow w-full max-w-[1000px] mx-auto px-6 py-12 theme-dark">
@@ -129,7 +152,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Hero Image */}
         <div className="w-full relative mb-20 border border-theme-dark-text/10 shadow-lg">
-          <img className="w-full aspect-video md:aspect-[21/9] object-cover grayscale" src={article.imageUrl || ""} alt="Hero Image" />
+          <Image className="w-full aspect-video md:aspect-[21/9] object-cover grayscale" src={article.imageUrl || ""} alt={article.title} width={1000} height={428} sizes="(max-width: 768px) 100vw, 1000px" priority />
         </div>
 
         {/* Article Content */}
@@ -151,7 +174,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               <Link href={`/journal/${related.slug}`} key={related.id} className="flex flex-col group cursor-pointer">
                 <div className="relative overflow-hidden mb-6 border border-theme-dark-text/10">
                   <div className="absolute inset-0 bg-primary/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10"></div>
-                  <img className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" src={related.imageUrl || ""} alt={related.title} />
+                  <Image className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" src={related.imageUrl || ""} alt={related.title} width={600} height={337} sizes="(max-width: 768px) 100vw, 45vw" />
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="font-label-sm text-[9px] font-semibold uppercase tracking-[0.15em] px-3 py-1.5 bg-transparent text-theme-dark-text border border-theme-dark-text/40">{related.category?.name || "Journal"}</span>
@@ -174,7 +197,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             {recommendedBooks.map((book, index) => (
               <Link key={book.id} href={`/catalog/${book.slug}`} className={`flex flex-col gap-6 group cursor-pointer ${index % 2 === 1 ? 'md:mt-8' : ''}`}>
                 <div className="relative p-4 bg-surface-bright/5 border border-theme-dark-text/10 shadow-sm transition-all duration-500 group-hover:-translate-y-2">
-                  <img alt={book.title} className="book-cover w-full object-cover" src={book.imageUrl || ""} />
+                  <Image alt={book.title} className="book-cover w-full object-cover" src={book.imageUrl || ""} width={300} height={450} sizes="(max-width: 768px) 45vw, 20vw" />
                 </div>
                 <div className="flex flex-col gap-2 text-center">
                   <span className="font-label-sm text-[10px] uppercase tracking-[0.2em] text-theme-dark-text/60">{book.author?.name || "Unknown"}</span>

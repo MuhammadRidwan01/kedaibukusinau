@@ -3,6 +3,7 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 
 export const metadata: Metadata = {
@@ -68,10 +69,14 @@ export default async function JournalPage() {
             <div className="lg:col-span-8">
               <Link href={`/journal/${featured.slug}`} className="relative overflow-hidden group cursor-pointer border border-theme-dark-text/10 block">
                 <div className="absolute inset-0 bg-primary/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10"></div>
-                <img 
+                <Image 
                   className="w-full aspect-video md:aspect-[16/7] lg:aspect-video object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" 
                   src={featured.imageUrl || ""} 
-                  alt={featured.title} 
+                  alt={featured.title}
+                  width={900}
+                  height={506}
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  priority
                 />
               </Link>
             </div>
@@ -120,10 +125,13 @@ export default async function JournalPage() {
             <Link key={article.id} href={`/journal/${article.slug}`} className="flex flex-col group cursor-pointer">
               <div className="relative overflow-hidden mb-6 border border-theme-dark-text/10">
                 <div className="absolute inset-0 bg-primary/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10"></div>
-                <img 
+                <Image 
                   className="w-full aspect-[4/3] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" 
                   src={article.imageUrl || ""} 
-                  alt={article.title} 
+                  alt={article.title}
+                  width={500}
+                  height={375}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
               <div className="flex items-center gap-3 mb-4">

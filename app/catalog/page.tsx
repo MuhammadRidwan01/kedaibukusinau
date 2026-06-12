@@ -426,7 +426,7 @@ async function CatalogContent({ searchParams }: { searchParams: Promise<{ [key: 
   );
 }
 
-export default function CatalogPage({
+export default async function CatalogPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -456,11 +456,10 @@ export default function CatalogPage({
                 Browse our complete collection of curated literature.
               </p>
             </div>
-            {/* The Total Books counter was moved down into the Utility Bar to avoid Suspense mismatch */}
           </div>
         </div>
 
-        <Suspense fallback={<CatalogSkeleton />}>
+        <Suspense fallback={null}>
           <CatalogContent searchParams={searchParams} />
         </Suspense>
       </main>

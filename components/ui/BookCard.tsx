@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import React from "react";
 
 interface BookCardProps {
@@ -39,10 +40,13 @@ export function BookCard({
         {badge === "Sale" && (
           <span className="book-badge book-badge--diskon">Sale</span>
         )}
-        <img
+        <Image
           alt={title}
           className="book-cover w-full object-cover"
           src={imageUrl}
+          width={400}
+          height={600}
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 250px"
         />
       </div>
       <div className="flex flex-col gap-1.5 text-center mt-2">

@@ -2,7 +2,14 @@ import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Kedai Sinau — An independent bookstore. We read, select, and sell good books. Learn about our story, vision, and mission.",
+};
 
 export default async function AboutPage() {
   "use cache";
@@ -51,10 +58,14 @@ export default async function AboutPage() {
 
         {/* Big Image */}
         <div className="w-full relative mb-24 border border-outline-variant/50 p-2 md:p-4 bg-surface shadow-sm">
-          <img 
+          <Image 
             className="w-full aspect-video md:aspect-[21/9] object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
             src={heroImage} 
-            alt={`${storeName} Bookstore Interior`} 
+            alt={`${storeName} Bookstore Interior`}
+            width={1200}
+            height={514}
+            sizes="(max-width: 768px) 100vw, 1200px"
+            priority
           />
         </div>
 

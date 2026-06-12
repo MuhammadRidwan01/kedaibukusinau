@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 type HeroSlide = {
   src: string;
@@ -70,7 +71,7 @@ export function HeroCarousel({ slides: providedSlides }: { slides?: HeroSlide[] 
       >
         {slides.map((slide, index) => (
           <div key={index} className="carousel-slide">
-            <img src={slide.src} alt={slide.alt} />
+            <Image src={slide.src} alt={slide.alt} fill sizes="100vw" priority={index === 0} className="object-cover" />
           </div>
         ))}
       </div>

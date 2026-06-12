@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import { HoverPrefetch } from "@/components/common/HoverPrefetch";
 import "./globals.css";
@@ -44,6 +44,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#1E3A5F",
+};
+
 
 export default function RootLayout({
   children,
@@ -62,6 +68,34 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col text-on-surface">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  name: "Kedai Sinau",
+                  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+                  description: "A curated index of titles that challenge the mind and soothe the soul.",
+                  inLanguage: "id-ID",
+                },
+                {
+                  "@type": "BookStore",
+                  name: "Kedai Sinau",
+                  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+                  description: "An independent bookstore. We read, select, and sell good books.",
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: "Yogyakarta",
+                    addressCountry: "ID",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
         <HoverPrefetch />
         <div className="noise-overlay"></div>
         {children}

@@ -3,6 +3,12 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { cacheLife, cacheTag } from "next/cache";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with Kedai Sinau. Send us a message, visit our store, or reach out via WhatsApp and email.",
+};
 
 async function getCachedSettings() {
   "use cache";

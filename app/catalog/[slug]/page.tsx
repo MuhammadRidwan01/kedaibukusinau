@@ -4,6 +4,7 @@ import { BookCard } from "@/components/ui/BookCard";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cacheLife, cacheTag } from "next/cache";
 
@@ -92,8 +93,34 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
 
   const synopsisParagraphs = book.synopsis ? book.synopsis.split("\n").filter(Boolean) : [];
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: book.title,
+    image: book.imageUrl || undefined,
+    description: book.synopsis?.substring(0, 300) || undefined,
+    isbn: book.isbn || undefined,
+    author: book.author ? { "@type": "Person", name: book.author.name } : undefined,
+    publisher: book.publisher ? { "@type": "Organization", name: book.publisher.name } : undefined,
+    offers: {
+      "@type": "Offer",
+      price: book.price,
+      priceCurrency: "IDR",
+      availability: book.availability === "Available"
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: `${siteUrl}/catalog/${slug}`,
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <PublicNavbar />
 
       <main className="flex-grow w-full max-w-[1200px] mx-auto px-6 py-12">
@@ -132,7 +159,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
                   {book.availability}
                 </span>
                 {book.imageUrl && (
-                  <img alt={book.title} className="w-full aspect-[2/3] object-cover editorial-inner" src={book.imageUrl} />
+                  <Image alt={book.title} className="w-full aspect-[2/3] object-cover editorial-inner" src={book.imageUrl} width={600} height={900} sizes="(max-width: 768px) 70vw, 35vw" priority />
                 )}
               </div>
             </div>

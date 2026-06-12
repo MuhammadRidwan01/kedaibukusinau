@@ -4,6 +4,7 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { BookCard } from "@/components/ui/BookCard";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { cacheLife, cacheTag } from "next/cache";
 
 async function getHomeData() {
@@ -90,10 +91,14 @@ export default async function Home() {
                 <div className="absolute -bottom-6 -right-6 sm:-bottom-10 sm:-right-10 w-14 sm:w-20 h-14 sm:h-20 border-b-[3px] sm:border-b-[4px] border-r-[3px] sm:border-r-[4px] border-[#FAF3E0]/80 transition-all duration-700 group-hover:-bottom-14 group-hover:-right-14 z-0"></div>
 
                 <div className="relative z-10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] transform transition-transform duration-700 group-hover:scale-[1.03]">
-                  <img
+                  <Image
                     alt={bestseller?.title || "Bestseller"}
                     className="w-full aspect-[2/3] object-cover editorial-inner filter contrast-125"
                     src={bestseller?.imageUrl || ""}
+                    width={600}
+                    height={900}
+                    sizes="(max-width: 768px) 70vw, 35vw"
+                    priority
                   />
 
                   <div className="absolute top-12 -right-8 bg-primary text-white font-label-sm text-[10px] tracking-widest uppercase px-6 py-2 rotate-90 origin-bottom-right shadow-xl">
@@ -273,10 +278,13 @@ export default async function Home() {
                   >
                     <div className="overflow-hidden">
                       <div className="pb-8 pt-2 flex flex-col md:flex-row gap-6 md:gap-8 ml-0 md:ml-[4.5rem]">
-                        <img
+                        <Image
                           alt={item.title}
                           className="w-full md:w-32 aspect-[2/3] object-cover shadow-xl editorial-inner"
                           src={item.imageUrl || ""}
+                          width={200}
+                          height={300}
+                          sizes="(max-width: 768px) 100vw, 128px"
                         />
                         <div className="flex flex-col justify-end">
                           <p className="font-body-md text-on-surface-variant max-w-sm mb-6 leading-relaxed">
@@ -378,10 +386,13 @@ export default async function Home() {
                 className={`flex flex-col group cursor-pointer ${index === 1 ? "md:mt-12" : ""}`}
               >
                 <div className="overflow-hidden border border-outline-variant bg-white p-2 mb-6">
-                  <img
+                  <Image
                     alt={article.title}
                     className="w-full h-64 object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
                     src={article.imageUrl || ""}
+                    width={600}
+                    height={400}
+                    sizes="(max-width: 768px) 90vw, 30vw"
                   />
                 </div>
                 <div className="flex flex-col gap-4">
