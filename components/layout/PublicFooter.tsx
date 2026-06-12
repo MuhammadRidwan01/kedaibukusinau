@@ -188,7 +188,7 @@ async function FooterContent({ theme = "light" }: { theme?: "light" | "dark" }) 
               The Journal
             </Link>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 opacity-0">
             <h4 className={`font-newsreader text-sm uppercase tracking-[0.2em] mb-4 ${theme === "dark" ? "text-theme-dark-text" : "text-on-surface"}`}>
               Support
             </h4>
